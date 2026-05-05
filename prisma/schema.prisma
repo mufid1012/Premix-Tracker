@@ -1,0 +1,93 @@
+// Produksi Dapur — Database Schema
+// Warung Modern Production Tracking System
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ===================================================================
+// Kategori resep (Bumbu Dasar, Tepung Bumbu, dll)
+// ===================================================================
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  icon      String?  @db.VarChar(50) // Material icon name
+  createdAt DateTime @default(now()) @map("created_at")
+
+  recipes Recipe[]
+
+  @@map("categories")
+}
+
+// ===================================================================
+// Resep standar (1 batch = X Kg)
+// ===================================================================
+model Recipe {
+  id              Int      @id @default(autoincrement())
+  name            String   @db.VarChar(200)
+  categoryId      Int      @map("category_id")
+  description     String?  @db.Text
+  standardBatchKg Float    @map("standard_batch_kg")
+  unit            String   @default("Kg") @db.VarChar(20)
+  isUrgent        Boolean  @default(false) @map("is_urgent")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  category    Category          @relation(fields: [categoryId], references: [id])
+  ingredients RecipeIngredient[]
+  productions ProductionEntry[]
+
+  @@map("recipes")
+}
+
+// ===================================================================
+// Komposisi bahan per 1 batch
+// ===================================================================
+model RecipeIngredient {
+  id             Int    @id @default(autoincrement())
+  recipeId       Int    @map("recipe_id")
+  ingredientName String @map("ingredient_name") @db.VarChar(200)
+  quantity       Float
+  unit           String @db.VarChar(20) // Kg, gr, ml, dll
+  sortOrder      Int    @default(0) @map("sort_order")
+
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@map("recipe_ingredients")
+}
+
+// ===================================================================
+// Sesi produksi (1 sesi = kumpulan entry saat "Selesaikan Sesi")
+// ===================================================================
+model ProductionSession {
+  id          Int       @id @default(autoincrement())
+  sessionDate DateTime  @default(now()) @map("session_date") @db.Date
+  status      String    @default("completed") @db.VarChar(20) // active, completed
+  createdAt   DateTime  @default(now()) @map("created_at")
+  completedAt DateTime? @map("completed_at")
+
+  entries ProductionEntry[]
+
+  @@map("production_sessions")
+}
+
+// ===================================================================
+// Entry produksi per resep dalam 1 sesi
+// ===================================================================
+model ProductionEntry {
+  id         Int      @id @default(autoincrement())
+  sessionId  Int      @map("session_id")
+  recipeId   Int      @map("recipe_id")
+  batchCount Int      @map("batch_count")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  session ProductionSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  recipe  Recipe             @relation(fields: [recipeId], references: [id])
+
+  @@map("production_entries")
+}
