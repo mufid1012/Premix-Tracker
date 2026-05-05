@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Produksi Dapur - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#271900",
+                        "primary-fixed": "#bcf0ae",
+                        "on-surface": "#1c1c19",
+                        "tertiary": "#602900",
+                        "surface-container-low": "#f7f3ee",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#c2c9bb",
+                        "tertiary-container": "#813d0a",
+                        "surface-tint": "#3b6934",
+                        "surface-container-high": "#ebe8e3",
+                        "surface-container-highest": "#e6e2dd",
+                        "on-tertiary-container": "#ffb183",
+                        "on-tertiary-fixed": "#321200",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#f1ede8",
+                        "on-background": "#1c1c19",
+                        "on-primary-fixed": "#002201",
+                        "on-primary-container": "#9dd090",
+                        "outline": "#72796e",
+                        "primary": "#154212",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#ffba20",
+                        "tertiary-fixed-dim": "#ffb68c",
+                        "primary-container": "#2d5a27",
+                        "inverse-surface": "#31302d",
+                        "on-tertiary-fixed-variant": "#753401",
+                        "on-surface-variant": "#42493e",
+                        "tertiary-fixed": "#ffdbc9",
+                        "secondary-fixed": "#ffdea8",
+                        "on-primary-fixed-variant": "#23501e",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e6e2dd",
+                        "primary-fixed-dim": "#a1d494",
+                        "surface-dim": "#ddd9d5",
+                        "surface-bright": "#fdf9f4",
+                        "secondary-container": "#feb700",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#5e4200",
+                        "inverse-on-surface": "#f4f0eb",
+                        "on-primary": "#ffffff",
+                        "background": "#fdf9f4",
+                        "surface": "#fdf9f4",
+                        "secondary": "#7c5800",
+                        "on-secondary-container": "#6b4b00",
+                        "inverse-primary": "#a1d494",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "48px",
+                        "base": "8px",
+                        "touch-target": "56px",
+                        "lg": "32px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "md": "20px"
+                    },
+                    "fontFamily": {
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-bold": ["14px", {"lineHeight": "20px", "fontWeight": "700"}],
+                        "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .shadow-soft-press {
+            box-shadow: 0 4px 12px rgba(74, 50, 31, 0.1);
+        }
+        .active-press:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(74, 50, 31, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="bg-stone-50 text-emerald-800 font-plus-jakarta-sans font-bold text-lg tracking-tight docked full-width top-0 border-b-2 border-stone-200 shadow-[0_2px_4px_rgba(74,50,31,0.05)] flex items-center justify-between px-6 h-16 w-full max-w-full sticky z-40">
+<button class="text-emerald-800 active:scale-95 active:bg-stone-200 duration-150 p-2 rounded-full hover:bg-stone-200/50 transition-colors flex items-center justify-center w-touch-target h-touch-target">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<h1 class="text-xl font-black text-emerald-900">Produksi Dapur</h1>
+<button class="text-emerald-800 active:scale-95 active:bg-stone-200 duration-150 p-2 rounded-full hover:bg-stone-200/50 transition-colors flex items-center justify-center w-touch-target h-touch-target">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="p-md md:p-lg max-w-4xl mx-auto space-y-lg">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Ringkasan Hari Ini</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Pantau produksi dan bahan baku.</p>
+</div>
+<button class="bg-primary text-on-primary font-label-bold text-label-bold px-lg py-sm rounded-lg active-press flex items-center justify-center gap-base min-h-[56px] w-full md:w-auto shadow-soft-press">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+                Input Cepat
+            </button>
+</div>
+<!-- Bento Grid Layout for Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Metric 1: Total Batch -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-soft-press relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-primary-container/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<div class="flex items-start justify-between relative z-10">
+<div>
+<p class="font-label-bold text-label-bold text-on-surface-variant mb-xs">Total Batch Hari Ini</p>
+<p class="font-display-lg text-display-lg text-on-surface">42 <span class="font-body-md text-body-md text-on-surface-variant">batch</span></p>
+</div>
+<div class="bg-primary-container text-on-primary-container w-12 h-12 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+</div>
+</div>
+<div class="mt-sm flex items-center gap-xs text-primary">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span class="font-label-bold text-label-bold text-[12px]">+5% dari kemarin</span>
+</div>
+</div>
+<!-- Metric 2: Bahan Baku -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-soft-press relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-secondary-container/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<div class="flex items-start justify-between relative z-10">
+<div>
+<p class="font-label-bold text-label-bold text-on-surface-variant mb-xs">Total Bahan Baku Terpakai</p>
+<p class="font-display-lg text-display-lg text-on-surface">128 <span class="font-body-md text-body-md text-on-surface-variant">kg</span></p>
+</div>
+<div class="bg-secondary-container text-on-secondary-container w-12 h-12 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">kitchen</span>
+</div>
+</div>
+<div class="mt-sm flex items-center gap-xs text-error">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span class="font-label-bold text-label-bold text-[12px]">+12% dari estimasi</span>
+</div>
+</div>
+</div>
+<!-- Chart Section -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-soft-press">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-md text-[20px] font-bold text-on-surface">Tren Penggunaan Bahan</h3>
+<button class="text-on-surface-variant hover:text-on-surface p-2 rounded-full">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<!-- Mock Chart Area (Visual representation) -->
+<div class="relative h-64 w-full flex items-end justify-between gap-xs md:gap-sm mt-md">
+<!-- Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between z-0">
+<div class="border-t border-outline-variant/30 w-full"></div>
+<div class="border-t border-outline-variant/30 w-full"></div>
+<div class="border-t border-outline-variant/30 w-full"></div>
+<div class="border-t border-outline-variant/30 w-full"></div>
+<div class="border-t border-on-surface/20 w-full"></div>
+</div>
+<!-- Bars -->
+<div class="relative z-10 w-full flex flex-col justify-end group">
+<div class="bg-primary/80 hover:bg-primary rounded-t-sm w-full h-[40%] transition-all duration-300"></div>
+<span class="text-center font-label-bold text-[10px] text-on-surface-variant mt-xs">Sen</span>
+</div>
+<div class="relative z-10 w-full flex flex-col justify-end group">
+<div class="bg-primary/80 hover:bg-primary rounded-t-sm w-full h-[55%] transition-all duration-300"></div>
+<span class="text-center font-label-bold text-[10px] text-on-surface-variant mt-xs">Sel</span>
+</div>
+<div class="relative z-10 w-full flex flex-col justify-end group">
+<div class="bg-primary/80 hover:bg-primary rounded-t-sm w-full h-[30%] transition-all duration-300"></div>
+<span class="text-center font-label-bold text-[10px] text-on-surface-variant mt-xs">Rab</span>
+</div>
+<div class="relative z-10 w-full flex flex-col justify-end group">
+<div class="bg-primary/80 hover:bg-primary rounded-t-sm w-full h-[70%] transition-all duration-300"></div>
+<span class="text-center font-label-bold text-[10px] text-on-surface-variant mt-xs">Kam</span>
+</div>
+<div class="relative z-10 w-full flex flex-col justify-end group">
+<div class="bg-secondary/80 hover:bg-secondary rounded-t-sm w-full h-[90%] transition-all duration-300"></div>
+<span class="text-center font-label-bold text-[10px] text-on-surface-variant mt-xs font-bold text-secondary">Jum</span>
+</div>
+<div class="relative z-10 w-full flex flex-col justify-end group">
+<div class="bg-primary/80 hover:bg-primary rounded-t-sm w-full h-[60%] transition-all duration-300"></div>
+<span class="text-center font-label-bold text-[10px] text-on-surface-variant mt-xs">Sab</span>
+</div>
+<div class="relative z-10 w-full flex flex-col justify-end group">
+<div class="bg-primary/80 hover:bg-primary rounded-t-sm w-full h-[45%] transition-all duration-300"></div>
+<span class="text-center font-label-bold text-[10px] text-on-surface-variant mt-xs">Min</span>
+</div>
+</div>
+<div class="mt-md flex items-center justify-center gap-md">
+<div class="flex items-center gap-xs">
+<div class="w-3 h-3 bg-primary rounded-full"></div>
+<span class="font-label-bold text-[12px] text-on-surface-variant">Normal</span>
+</div>
+<div class="flex items-center gap-xs">
+<div class="w-3 h-3 bg-secondary rounded-full"></div>
+<span class="font-label-bold text-[12px] text-on-surface-variant">Puncak</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden bg-stone-50 font-plus-jakarta-sans text-[10px] font-extrabold uppercase tracking-widest fixed bottom-0 w-full z-50 rounded-t-2xl border-t-2 border-stone-200 shadow-[0_-4px_12px_rgba(74,50,31,0.1)] left-0 h-20 flex justify-around items-center px-4 pb-safe">
+<!-- Dashboard (Active) -->
+<button class="flex flex-col items-center justify-center bg-emerald-100 text-emerald-900 rounded-xl px-4 py-2 min-w-[64px] active:translate-y-0.5 transition-all duration-200 h-full">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span>Dashboard</span>
+</button>
+<!-- Resep -->
+<button class="flex flex-col items-center justify-center text-stone-500 px-4 py-2 hover:text-emerald-700 active:translate-y-0.5 transition-all duration-200 h-full">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">restaurant_menu</span>
+<span>Resep</span>
+</button>
+<!-- Input -->
+<button class="flex flex-col items-center justify-center text-stone-500 px-4 py-2 hover:text-emerald-700 active:translate-y-0.5 transition-all duration-200 h-full">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">add_task</span>
+<span>Input</span>
+</button>
+<!-- Laporan -->
+<button class="flex flex-col items-center justify-center text-stone-500 px-4 py-2 hover:text-emerald-700 active:translate-y-0.5 transition-all duration-200 h-full">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">analytics</span>
+<span>Laporan</span>
+</button>
+</nav>
+</body></html>

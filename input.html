@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Input Produksi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#271900",
+                        "primary-fixed": "#bcf0ae",
+                        "on-surface": "#1c1c19",
+                        "tertiary": "#602900",
+                        "surface-container-low": "#f7f3ee",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#c2c9bb",
+                        "tertiary-container": "#813d0a",
+                        "surface-tint": "#3b6934",
+                        "surface-container-high": "#ebe8e3",
+                        "surface-container-highest": "#e6e2dd",
+                        "on-tertiary-container": "#ffb183",
+                        "on-tertiary-fixed": "#321200",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#f1ede8",
+                        "on-background": "#1c1c19",
+                        "on-primary-fixed": "#002201",
+                        "on-primary-container": "#9dd090",
+                        "outline": "#72796e",
+                        "primary": "#154212",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#ffba20",
+                        "tertiary-fixed-dim": "#ffb68c",
+                        "primary-container": "#2d5a27",
+                        "inverse-surface": "#31302d",
+                        "on-tertiary-fixed-variant": "#753401",
+                        "on-surface-variant": "#42493e",
+                        "tertiary-fixed": "#ffdbc9",
+                        "secondary-fixed": "#ffdea8",
+                        "on-primary-fixed-variant": "#23501e",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e6e2dd",
+                        "primary-fixed-dim": "#a1d494",
+                        "surface-dim": "#ddd9d5",
+                        "surface-bright": "#fdf9f4",
+                        "secondary-container": "#feb700",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#5e4200",
+                        "inverse-on-surface": "#f4f0eb",
+                        "on-primary": "#ffffff",
+                        "background": "#fdf9f4",
+                        "surface": "#fdf9f4",
+                        "secondary": "#7c5800",
+                        "on-secondary-container": "#6b4b00",
+                        "inverse-primary": "#a1d494",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "48px",
+                        "base": "8px",
+                        "touch-target": "56px",
+                        "lg": "32px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "md": "20px"
+                    },
+                    "fontFamily": {
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-bold": ["14px", { "lineHeight": "20px", "fontWeight": "700" }],
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Custom Shadows */
+        .shadow-soft-press {
+            box-shadow: 0 2px 4px rgba(74, 50, 31, 0.1);
+        }
+        .shadow-soft-press-active {
+            box-shadow: inset 0 2px 4px rgba(74, 50, 31, 0.1);
+        }
+        
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        /* Hide scrollbar for category tabs */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md antialiased pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-stone-50 dark:bg-stone-950 text-emerald-800 dark:text-emerald-400 font-plus-jakarta-sans font-bold text-lg tracking-tight docked full-width top-0 border-b-2 border-stone-200 dark:border-stone-800 shadow-[0_2px_4px_rgba(74,50,31,0.05)] flex items-center justify-between px-6 h-16 w-full max-w-full z-40 fixed">
+<button aria-label="Back" class="flex items-center justify-center w-touch-target h-touch-target hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors active:scale-95 active:bg-stone-200 duration-150 rounded-full">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<h1 class="text-xl font-black text-emerald-900 dark:text-emerald-100 flex-1 text-center">Produksi Dapur</h1>
+<button aria-label="Profile" class="flex items-center justify-center w-touch-target h-touch-target hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors active:scale-95 active:bg-stone-200 duration-150 rounded-full">
+<span class="material-symbols-outlined text-2xl">account_circle</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-[88px] px-6 md:px-lg max-w-7xl mx-auto h-full">
+<!-- Category Tabs -->
+<section class="mb-6 sticky top-[64px] bg-background z-30 py-4 -mx-6 px-6 md:mx-0 md:px-0">
+<div class="flex overflow-x-auto no-scrollbar gap-sm pb-2">
+<button class="flex-shrink-0 bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-full shadow-soft-press transition-transform active:scale-95 active:shadow-soft-press-active">
+                    Bumbu Dasar
+                </button>
+<button class="flex-shrink-0 bg-surface-container text-on-surface-variant font-label-bold text-label-bold px-6 py-3 rounded-full shadow-soft-press border-2 border-transparent hover:border-outline-variant transition-all active:scale-95">
+                    Sayuran
+                </button>
+<button class="flex-shrink-0 bg-surface-container text-on-surface-variant font-label-bold text-label-bold px-6 py-3 rounded-full shadow-soft-press border-2 border-transparent hover:border-outline-variant transition-all active:scale-95">
+                    Lauk Pauk
+                </button>
+<button class="flex-shrink-0 bg-surface-container text-on-surface-variant font-label-bold text-label-bold px-6 py-3 rounded-full shadow-soft-press border-2 border-transparent hover:border-outline-variant transition-all active:scale-95">
+                    Sambal
+                </button>
+</div>
+</section>
+<!-- Recipe Cards Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md pb-xl">
+<!-- Card 1 -->
+<article class="bg-surface-container-lowest border-t-[6px] border-t-primary rounded-xl shadow-soft-press overflow-hidden flex flex-col relative">
+<div class="p-4 flex-1">
+<div class="flex justify-between items-start mb-2">
+<h2 class="font-headline-md text-headline-md text-on-surface">Bumbu Kuning</h2>
+<span class="bg-secondary-container text-on-secondary-container font-label-bold text-label-bold px-3 py-1 rounded-full">Urgent</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Batch Produksi Harian</p>
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-outline">scale</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Target: 5 Kg</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 flex items-center justify-between border-t border-surface-variant">
+<div class="flex flex-col">
+<span class="font-label-bold text-label-bold text-on-surface-variant">Sesi Ini</span>
+<span class="font-display-lg text-display-lg text-primary">2</span>
+</div>
+<button aria-label="Tambah Bumbu Kuning" class="bg-primary text-on-primary w-16 h-16 rounded-xl flex items-center justify-center shadow-soft-press hover:bg-primary-container transition-colors active:scale-95 active:shadow-soft-press-active">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</button>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-surface-container-lowest border-t-[6px] border-t-secondary-container rounded-xl shadow-soft-press overflow-hidden flex flex-col relative">
+<div class="p-4 flex-1">
+<div class="flex justify-between items-start mb-2">
+<h2 class="font-headline-md text-headline-md text-on-surface">Bumbu Merah</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Batch Produksi Harian</p>
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-outline">scale</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Target: 3 Kg</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 flex items-center justify-between border-t border-surface-variant">
+<div class="flex flex-col">
+<span class="font-label-bold text-label-bold text-on-surface-variant">Sesi Ini</span>
+<span class="font-display-lg text-display-lg text-primary">0</span>
+</div>
+<button aria-label="Tambah Bumbu Merah" class="bg-primary text-on-primary w-16 h-16 rounded-xl flex items-center justify-center shadow-soft-press hover:bg-primary-container transition-colors active:scale-95 active:shadow-soft-press-active">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</button>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="bg-surface-container-lowest border-t-[6px] border-t-outline-variant rounded-xl shadow-soft-press overflow-hidden flex flex-col relative opacity-80">
+<div class="p-4 flex-1">
+<div class="flex justify-between items-start mb-2">
+<h2 class="font-headline-md text-headline-md text-on-surface">Bumbu Putih</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Stok Aman</p>
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-outline">check_circle</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Target Tercapai</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 flex items-center justify-between border-t border-surface-variant">
+<div class="flex flex-col">
+<span class="font-label-bold text-label-bold text-on-surface-variant">Sesi Ini</span>
+<span class="font-display-lg text-display-lg text-primary">5</span>
+</div>
+<button aria-label="Tambah Bumbu Putih" class="bg-surface-variant text-on-surface-variant w-16 h-16 rounded-xl flex items-center justify-center border-2 border-outline-variant shadow-soft-press hover:bg-surface-dim transition-colors active:scale-95 active:shadow-soft-press-active">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</button>
+</div>
+</article>
+</section>
+<!-- Quick Action Footer (Desktop Only) -->
+<section class="hidden md:flex fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t-2 border-surface-variant p-4 items-center justify-between shadow-[0_-4px_12px_rgba(74,50,31,0.1)] z-40">
+<div class="max-w-7xl mx-auto w-full flex justify-between items-center px-lg">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md text-on-surface">Total Produksi Sesi Ini:</span>
+<span class="font-display-lg text-display-lg text-primary">7</span>
+</div>
+<button class="bg-secondary text-on-secondary font-label-bold text-label-bold px-8 py-4 rounded-xl shadow-soft-press hover:bg-tertiary-container transition-colors active:scale-95">
+                    Selesaikan Sesi
+                </button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-stone-50 dark:bg-stone-900 text-emerald-800 dark:text-emerald-400 font-plus-jakarta-sans text-[10px] font-extrabold uppercase tracking-widest fixed bottom-0 w-full z-50 rounded-t-2xl border-t-2 border-stone-200 dark:border-stone-800 shadow-[0_-4px_12px_rgba(74,50,31,0.1)] fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-safe">
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-4 py-2 hover:text-emerald-700 dark:hover:text-emerald-300 active:translate-y-0.5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1 text-2xl">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-4 py-2 hover:text-emerald-700 dark:hover:text-emerald-300 active:translate-y-0.5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1 text-2xl">restaurant_menu</span>
+<span>Resep</span>
+</a>
+<a aria-current="page" class="flex flex-col items-center justify-center bg-emerald-100 dark:bg-emerald-900/40 text-emerald-900 dark:text-emerald-100 rounded-xl px-4 py-2 min-w-[64px] hover:text-emerald-700 dark:hover:text-emerald-300 active:translate-y-0.5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined filled mb-1 text-2xl">add_task</span>
+<span>Input</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-4 py-2 hover:text-emerald-700 dark:hover:text-emerald-300 active:translate-y-0.5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1 text-2xl">analytics</span>
+<span>Laporan</span>
+</a>
+</nav>
+</body></html>

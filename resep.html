@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manajemen Resep - Produksi Dapur</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#271900",
+                        "primary-fixed": "#bcf0ae",
+                        "on-surface": "#1c1c19",
+                        "tertiary": "#602900",
+                        "surface-container-low": "#f7f3ee",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#c2c9bb",
+                        "tertiary-container": "#813d0a",
+                        "surface-tint": "#3b6934",
+                        "surface-container-high": "#ebe8e3",
+                        "surface-container-highest": "#e6e2dd",
+                        "on-tertiary-container": "#ffb183",
+                        "on-tertiary-fixed": "#321200",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#f1ede8",
+                        "on-background": "#1c1c19",
+                        "on-primary-fixed": "#002201",
+                        "on-primary-container": "#9dd090",
+                        "outline": "#72796e",
+                        "primary": "#154212",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#ffba20",
+                        "tertiary-fixed-dim": "#ffb68c",
+                        "primary-container": "#2d5a27",
+                        "inverse-surface": "#31302d",
+                        "on-tertiary-fixed-variant": "#753401",
+                        "on-surface-variant": "#42493e",
+                        "tertiary-fixed": "#ffdbc9",
+                        "secondary-fixed": "#ffdea8",
+                        "on-primary-fixed-variant": "#23501e",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e6e2dd",
+                        "primary-fixed-dim": "#a1d494",
+                        "surface-dim": "#ddd9d5",
+                        "surface-bright": "#fdf9f4",
+                        "secondary-container": "#feb700",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#5e4200",
+                        "inverse-on-surface": "#f4f0eb",
+                        "on-primary": "#ffffff",
+                        "background": "#fdf9f4",
+                        "surface": "#fdf9f4",
+                        "secondary": "#7c5800",
+                        "on-secondary-container": "#6b4b00",
+                        "inverse-primary": "#a1d494",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "48px",
+                        "base": "8px",
+                        "touch-target": "56px",
+                        "lg": "32px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "md": "20px"
+                    },
+                    "fontFamily": {
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-bold": ["14px", {"lineHeight": "20px", "fontWeight": "700"}],
+                        "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-stone-50 dark:bg-stone-950 text-emerald-800 dark:text-emerald-400 font-plus-jakarta-sans font-bold text-lg tracking-tight text-xl font-black text-emerald-900 dark:text-emerald-100 docked full-width top-0 border-b-2 border-stone-200 dark:border-stone-800 shadow-[0_2px_4px_rgba(74,50,31,0.05)] flex items-center justify-between px-6 h-16 w-full max-w-full z-50 sticky">
+<button class="hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors active:scale-95 active:bg-stone-200 duration-150 p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<span class="font-headline-md text-headline-md text-primary">Produksi Dapur</span>
+<button class="hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors active:scale-95 active:bg-stone-200 duration-150 p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</header>
+<main class="p-md max-w-5xl mx-auto">
+<!-- Page Title & Search -->
+<div class="mb-lg flex flex-col md:flex-row md:items-center justify-between gap-md pt-lg">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-xs">Manajemen Resep</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Panduan proporsi standar untuk 1 batch produksi.</p>
+</div>
+<div class="relative w-full md:w-auto">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full md:w-80 h-touch-target pl-[44px] pr-sm rounded-lg bg-surface-container-high border-2 border-surface-container-high focus:border-secondary-container focus:bg-surface-container-lowest focus:ring-0 outline-none font-body-md text-body-md transition-all duration-200 shadow-[inset_0_2px_4px_rgba(74,50,31,0.02)]" placeholder="Cari resep..." type="text"/>
+</div>
+</div>
+<!-- Category Filters -->
+<div class="flex overflow-x-auto pb-sm mb-md gap-sm no-scrollbar scroll-smooth">
+<button class="shrink-0 h-touch-target px-md rounded-full font-label-bold text-label-bold bg-secondary-container text-on-secondary-container shadow-[0_2px_4px_rgba(74,50,31,0.1)] active:scale-95 transition-all">Semua</button>
+<button class="shrink-0 h-touch-target px-md rounded-full font-label-bold text-label-bold bg-surface-container-high text-on-surface-variant border border-outline-variant hover:bg-surface-variant active:scale-95 transition-all">Bumbu Dasar</button>
+<button class="shrink-0 h-touch-target px-md rounded-full font-label-bold text-label-bold bg-surface-container-high text-on-surface-variant border border-outline-variant hover:bg-surface-variant active:scale-95 transition-all">Tepung Bumbu</button>
+<button class="shrink-0 h-touch-target px-md rounded-full font-label-bold text-label-bold bg-surface-container-high text-on-surface-variant border border-outline-variant hover:bg-surface-variant active:scale-95 transition-all">Kuah &amp; Kaldu</button>
+<button class="shrink-0 h-touch-target px-md rounded-full font-label-bold text-label-bold bg-surface-container-high text-on-surface-variant border border-outline-variant hover:bg-surface-variant active:scale-95 transition-all">Pelengkap</button>
+</div>
+<!-- Recipe List -->
+<div class="flex flex-col gap-md">
+<!-- Recipe Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-container-highest shadow-[0_4px_8px_rgba(74,50,31,0.04)] overflow-hidden">
+<div class="border-t-4 border-primary"></div>
+<div class="p-md md:p-lg flex flex-col md:flex-row gap-lg">
+<!-- Recipe Info -->
+<div class="flex-1">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Bumbu Merah Dasar</h2>
+<span class="inline-flex items-center px-sm py-1 rounded-full bg-surface-container-high text-on-surface-variant font-label-bold text-[12px] border border-outline-variant">
+<span class="material-symbols-outlined text-[14px] mr-1">blender</span> Bumbu Dasar
+                                </span>
+</div>
+<div class="text-right">
+<span class="block font-label-bold text-label-bold text-on-surface-variant">Standar Batch</span>
+<span class="font-body-lg text-body-lg text-primary font-bold">5 Kg</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">Digunakan untuk dasar balado, sambal goreng, dan bumbu rendang tahap awal.</p>
+<!-- Ingredient List -->
+<div class="bg-surface-container-low rounded-lg p-sm border border-surface-container-highest">
+<h3 class="font-label-bold text-label-bold text-on-surface mb-xs px-2 border-b border-surface-container-highest pb-2 flex items-center">
+<span class="material-symbols-outlined mr-2 text-primary">scale</span> Komposisi Bahan (1 Batch)
+                            </h3>
+<ul class="font-body-md text-body-md text-on-surface">
+<li class="flex justify-between py-2 px-2 border-b border-surface-container-high last:border-0 hover:bg-surface-container transition-colors">
+<span>Cabai Merah Besar (Buang Biji)</span>
+<span class="font-bold text-secondary">2.5 Kg</span>
+</li>
+<li class="flex justify-between py-2 px-2 border-b border-surface-container-high last:border-0 hover:bg-surface-container transition-colors">
+<span>Bawang Merah</span>
+<span class="font-bold text-secondary">1.5 Kg</span>
+</li>
+<li class="flex justify-between py-2 px-2 border-b border-surface-container-high last:border-0 hover:bg-surface-container transition-colors">
+<span>Bawang Putih</span>
+<span class="font-bold text-secondary">800 gr</span>
+</li>
+<li class="flex justify-between py-2 px-2 border-b border-surface-container-high last:border-0 hover:bg-surface-container transition-colors">
+<span>Garam Kasar</span>
+<span class="font-bold text-secondary">150 gr</span>
+</li>
+<li class="flex justify-between py-2 px-2 border-b border-surface-container-high last:border-0 hover:bg-surface-container transition-colors">
+<span>Minyak Goreng</span>
+<span class="font-bold text-secondary">500 ml</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Action Area -->
+<div class="md:w-64 flex flex-col justify-end gap-sm md:border-l md:border-surface-container-high md:pl-lg">
+<button class="w-full h-touch-target rounded-lg font-label-bold text-label-bold bg-primary text-on-primary shadow-[0_2px_4px_rgba(74,50,31,0.1)] active:scale-[0.98] transition-transform flex items-center justify-center">
+<span class="material-symbols-outlined mr-2">add_task</span> Input Produksi
+                        </button>
+<button class="w-full h-touch-target rounded-lg font-label-bold text-label-bold border-2 border-tertiary text-tertiary hover:bg-surface-container-low active:scale-[0.98] transition-all flex items-center justify-center">
+<span class="material-symbols-outlined mr-2">edit</span> Edit Resep
+                        </button>
+</div>
+</div>
+</div>
+<!-- Recipe Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-container-highest shadow-[0_4px_8px_rgba(74,50,31,0.04)] overflow-hidden">
+<div class="border-t-4 border-secondary-container"></div>
+<div class="p-md md:p-lg flex flex-col md:flex-row gap-lg">
+<!-- Recipe Info -->
+<div class="flex-1">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Campuran Tepung Kriuk</h2>
+<span class="inline-flex items-center px-sm py-1 rounded-full bg-surface-container-high text-on-surface-variant font-label-bold text-[12px] border border-outline-variant">
+<span class="material-symbols-outlined text-[14px] mr-1">grain</span> Tepung Bumbu
+                                </span>
+</div>
+<div class="text-right">
+<span class="block font-label-bold text-label-bold text-on-surface-variant">Standar Batch</span>
+<span class="font-body-lg text-body-lg text-primary font-bold">10 Kg</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">Tepung pelapis standar untuk ayam goreng dan mendoan agar tahan lama.</p>
+<!-- Ingredient List -->
+<div class="bg-surface-container-low rounded-lg p-sm border border-surface-container-highest">
+<h3 class="font-label-bold text-label-bold text-on-surface mb-xs px-2 border-b border-surface-container-highest pb-2 flex items-center">
+<span class="material-symbols-outlined mr-2 text-primary">scale</span> Komposisi Bahan (1 Batch)
+                            </h3>
+<ul class="font-body-md text-body-md text-on-surface">
+<li class="flex justify-between py-2 px-2 border-b border-surface-container-high last:border-0 hover:bg-surface-container transition-colors">
+<span>Tepung Terigu Protein Sedang</span>
+<span class="font-bold text-secondary">7 Kg</span>
+</li>
+<li class="flex justify-between py-2 px-2 border-b border-surface-container-high last:border-0 hover:bg-surface-container transition-colors">
+<span>Tepung Tapioka (Kanji)</span>
+<span class="font-bold text-secondary">2 Kg</span>
+</li>
+<li class="flex justify-between py-2 px-2 border-b border-surface-container-high last:border-0 hover:bg-surface-container transition-colors">
+<span>Tepung Beras</span>
+<span class="font-bold text-secondary">800 gr</span>
+</li>
+<li class="flex justify-between py-2 px-2 border-b border-surface-container-high last:border-0 hover:bg-surface-container transition-colors">
+<span>Baking Powder Double Acting</span>
+<span class="font-bold text-secondary">50 gr</span>
+</li>
+<li class="flex justify-between py-2 px-2 border-b border-surface-container-high last:border-0 hover:bg-surface-container transition-colors">
+<span>Kaldu Bubuk Ayam</span>
+<span class="font-bold text-secondary">150 gr</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Action Area -->
+<div class="md:w-64 flex flex-col justify-end gap-sm md:border-l md:border-surface-container-high md:pl-lg">
+<button class="w-full h-touch-target rounded-lg font-label-bold text-label-bold bg-primary text-on-primary shadow-[0_2px_4px_rgba(74,50,31,0.1)] active:scale-[0.98] transition-transform flex items-center justify-center">
+<span class="material-symbols-outlined mr-2">add_task</span> Input Produksi
+                        </button>
+<button class="w-full h-touch-target rounded-lg font-label-bold text-label-bold border-2 border-tertiary text-tertiary hover:bg-surface-container-low active:scale-[0.98] transition-all flex items-center justify-center">
+<span class="material-symbols-outlined mr-2">edit</span> Edit Resep
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-stone-50 dark:bg-stone-900 text-emerald-800 dark:text-emerald-400 font-plus-jakarta-sans text-[10px] font-extrabold uppercase tracking-widest fixed bottom-0 w-full z-50 rounded-t-2xl border-t-2 border-stone-200 dark:border-stone-800 shadow-[0_-4px_12px_rgba(74,50,31,0.1)] fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-safe md:hidden">
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-4 py-2 hover:text-emerald-700 dark:hover:text-emerald-300 active:translate-y-0.5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-emerald-100 dark:bg-emerald-900/40 text-emerald-900 dark:text-emerald-100 rounded-xl px-4 py-2 min-w-[64px] hover:text-emerald-700 dark:hover:text-emerald-300 active:translate-y-0.5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1">restaurant_menu</span>
+<span>Resep</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-4 py-2 hover:text-emerald-700 dark:hover:text-emerald-300 active:translate-y-0.5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1">add_task</span>
+<span>Input</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-4 py-2 hover:text-emerald-700 dark:hover:text-emerald-300 active:translate-y-0.5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1">analytics</span>
+<span>Laporan</span>
+</a>
+</nav>
+</body></html>
