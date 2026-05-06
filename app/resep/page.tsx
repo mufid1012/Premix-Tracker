@@ -6,6 +6,7 @@ import RecipeCard from "@/components/recipe/RecipeCard";
 import RecipeFormModal, {
   type RecipeFormData,
 } from "@/components/recipe/RecipeFormModal";
+import CategoryManagerModal from "@/components/recipe/CategoryManagerModal";
 
 interface Category {
   id: number;
@@ -37,6 +38,8 @@ export default function ResepPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [editRecipeData, setEditRecipeData] = useState<Recipe | null>(null);
 
   const fetchRecipes = useCallback(async () => {
     const params = new URLSearchParams();
@@ -70,6 +73,58 @@ export default function ResepPage() {
       setShowModal(false);
       fetchRecipes();
     }
+  };
+
+  const handleEditRecipe = async (data: RecipeFormData) => {
+    if (!editRecipeData) return;
+    const res = await fetch(`/api/recipes/${editRecipeData.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (res.ok) {
+      setEditRecipeData(null);
+      fetchRecipes();
+    }
+  };
+
+  const handleDeleteRecipe = async (id: number) => {
+    const res = await fetch(`/api/recipes/${id}`, {
+      method: "DELETE",
+    });
+    if (res.ok) {
+      setEditRecipeData(null);
+      fetchRecipes();
+    } else {
+      const err = await res.json();
+      alert(err.error || "Gagal menghapus resep");
+    }
+  };
+
+  const handleAddCategory = async (name: string, icon: string) => {
+    const res = await fetch("/api/categories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, icon }),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Gagal menambah kategori");
+    }
+    const cat = await res.json();
+    setCategories([...categories, cat]);
+  };
+
+  const handleDeleteCategory = async (id: number) => {
+    const res = await fetch(`/api/categories/${id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Gagal menghapus kategori");
+    }
+    setCategories(categories.filter((c) => c.id !== id));
+    if (activeCategory === String(id)) setActiveCategory("all");
   };
 
   return (
@@ -113,12 +168,23 @@ export default function ResepPage() {
         </div>
       </div>
 
-      {/* Category Filters */}
-      <CategoryFilter
-        categories={categories}
-        activeId={activeCategory}
-        onSelect={setActiveCategory}
-      />
+      {/* Category Filters & Manage Button */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-[16px] mb-[24px]">
+        <div className="flex-1 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
+          <CategoryFilter
+            categories={categories}
+            activeId={activeCategory}
+            onSelect={setActiveCategory}
+          />
+        </div>
+        <button
+          onClick={() => setShowCategoryModal(true)}
+          className="shrink-0 inline-flex items-center gap-[8px] h-[40px] px-[16px] rounded-lg border-2 border-outline-variant text-on-surface-variant font-[700] text-label-bold hover:bg-surface-container-high active:scale-95 transition-all"
+        >
+          <span className="material-symbols-outlined text-[18px]">settings</span>
+          Kelola Kategori
+        </button>
+      </div>
 
       {/* Loading */}
       {loading && (
@@ -143,6 +209,7 @@ export default function ResepPage() {
               description={recipe.description}
               ingredients={recipe.ingredients}
               variant={idx % 2 === 0 ? "primary" : "secondary"}
+              onEdit={() => setEditRecipeData(recipe)}
             />
           ))}
         </div>
@@ -179,6 +246,39 @@ export default function ResepPage() {
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onSubmit={handleCreateRecipe}
+      />
+
+      {/* Edit Recipe Modal */}
+      {editRecipeData && (
+        <RecipeFormModal
+          categories={categories}
+          isOpen={true}
+          onClose={() => setEditRecipeData(null)}
+          onSubmit={handleEditRecipe}
+          initialData={{
+            id: editRecipeData.id,
+            name: editRecipeData.name,
+            categoryId: editRecipeData.category.id,
+            description: editRecipeData.description || "",
+            standardBatchKg: editRecipeData.standardBatchKg,
+            unit: editRecipeData.unit,
+            ingredients: editRecipeData.ingredients.map((ing) => ({
+              name: ing.ingredientName,
+              quantity: ing.quantity,
+              unit: ing.unit,
+            })),
+          }}
+          onDelete={handleDeleteRecipe}
+        />
+      )}
+
+      {/* Category Manager Modal */}
+      <CategoryManagerModal
+        categories={categories}
+        isOpen={showCategoryModal}
+        onClose={() => setShowCategoryModal(false)}
+        onAddCategory={handleAddCategory}
+        onDeleteCategory={handleDeleteCategory}
       />
     </div>
   );

@@ -87,7 +87,7 @@ model ProductionEntry {
   createdAt  DateTime @default(now()) @map("created_at")
 
   session ProductionSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  recipe  Recipe             @relation(fields: [recipeId], references: [id])
+  recipe  Recipe             @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@map("production_entries")
 }

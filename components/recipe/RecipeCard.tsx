@@ -15,6 +15,7 @@ interface RecipeCardProps {
   description: string | null;
   ingredients: Ingredient[];
   variant?: "primary" | "secondary";
+  onEdit?: () => void;
 }
 
 export default function RecipeCard({
@@ -24,6 +25,7 @@ export default function RecipeCard({
   description,
   ingredients,
   variant = "primary",
+  onEdit,
 }: RecipeCardProps) {
   // Hitung total berat semua bahan dalam Kg
   const totalBeratKg = ingredients.reduce((sum, ing) => {
@@ -119,7 +121,10 @@ export default function RecipeCard({
             <span className="material-symbols-outlined mr-2">add_task</span>
             Input Produksi
           </Link>
-          <button className="w-full h-[56px] rounded-lg font-[700] text-label-bold border-2 border-tertiary text-tertiary hover:bg-surface-container-low active:scale-[0.98] transition-all flex items-center justify-center">
+          <button
+            onClick={onEdit}
+            className="w-full h-[56px] rounded-lg font-[700] text-label-bold border-2 border-tertiary text-tertiary hover:bg-surface-container-low active:scale-[0.98] transition-all flex items-center justify-center"
+          >
             <span className="material-symbols-outlined mr-2">edit</span>
             Edit Resep
           </button>

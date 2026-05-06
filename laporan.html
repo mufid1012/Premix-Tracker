@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#e6e2dd",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#271900",
+                        "primary-container": "#2d5a27",
+                        "on-tertiary-fixed": "#321200",
+                        "background": "#fdf9f4",
+                        "tertiary-fixed": "#ffdbc9",
+                        "surface": "#fdf9f4",
+                        "on-primary-fixed": "#002201",
+                        "secondary-fixed": "#ffdea8",
+                        "tertiary-fixed-dim": "#ffb68c",
+                        "surface-tint": "#3b6934",
+                        "secondary-container": "#feb700",
+                        "secondary": "#7c5800",
+                        "on-primary-container": "#9dd090",
+                        "outline-variant": "#c2c9bb",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#a1d494",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#fdf9f4",
+                        "on-secondary-fixed-variant": "#5e4200",
+                        "on-surface": "#1c1c19",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#23501e",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#813d0a",
+                        "primary": "#154212",
+                        "secondary-fixed-dim": "#ffba20",
+                        "on-tertiary-fixed-variant": "#753401",
+                        "on-tertiary-container": "#ffb183",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#ddd9d5",
+                        "inverse-surface": "#31302d",
+                        "surface-container-low": "#f7f3ee",
+                        "inverse-on-surface": "#f4f0eb",
+                        "surface-container-high": "#ebe8e3",
+                        "tertiary": "#602900",
+                        "on-surface-variant": "#42493e",
+                        "surface-variant": "#e6e2dd",
+                        "outline": "#72796e",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#bcf0ae",
+                        "surface-container": "#f1ede8",
+                        "on-secondary-container": "#6b4b00",
+                        "primary-fixed-dim": "#a1d494",
+                        "on-background": "#1c1c19"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "touch-target": "56px",
+                        "sm": "12px",
+                        "lg": "32px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "xl": "48px",
+                        "md": "20px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "label-bold": ["14px", {"lineHeight": "20px", "fontWeight": "700"}],
+                        "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fdf9f4; }
+        .soft-press { box-shadow: 0 4px 12px rgba(74, 50, 31, 0.08); }
+        .bilah-masak { transition: width 1s ease-in-out; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<nav class="bg-stone-50 fixed top-0 w-full z-50 border-b-2 border-stone-200 shadow-[0_2px_4px_rgba(74,50,31,0.05)] flex items-center justify-between px-6 h-16">
+<div class="flex items-center gap-4">
+<button class="text-emerald-800 hover:bg-stone-200/50 p-2 rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-plus-jakarta-sans font-bold text-lg tracking-tight text-emerald-800">Laporan Produksi</h1>
+</div>
+<button class="text-emerald-800 hover:bg-stone-200/50 p-2 rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</nav>
+<main class="pt-20 px-6 max-w-md mx-auto space-y-6">
+<!-- Periode Selector -->
+<section class="space-y-3">
+<p class="font-label-bold text-label-bold text-on-surface-variant">Pilih Periode Laporan</p>
+<div class="bg-surface-container-high p-1 rounded-xl flex gap-1"><button class="flex-1 py-2 rounded-lg text-on-surface-variant font-label-bold hover:bg-surface-container-highest transition-colors">Harian</button><button class="flex-1 py-2 rounded-lg bg-surface-container-lowest text-primary font-label-bold shadow-sm">Mingguan</button><button class="flex-1 py-2 rounded-lg text-on-surface-variant font-label-bold hover:bg-surface-container-highest transition-colors">Bulanan</button></div>
+</section>
+<!-- Summary Cards -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant soft-press relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-10">
+<span class="material-symbols-outlined scale-[2.5]" data-icon="restaurant_menu">restaurant_menu</span>
+</div>
+<p class="text-on-surface-variant font-label-bold text-xs mb-1">Adonan Selesai</p>
+<p class="text-primary font-display-lg text-2xl">284 <span class="text-sm font-label-bold text-on-surface-variant">Batch</span></p>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant soft-press relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-10">
+<span class="material-symbols-outlined scale-[2.5]" data-icon="inventory_2">inventory_2</span>
+</div>
+<p class="text-on-surface-variant font-label-bold text-xs mb-1">Bahan Terpakai</p>
+<p class="text-primary font-display-lg text-2xl">850 <span class="text-sm font-label-bold text-on-surface-variant">kg</span></p>
+</div>
+</div>
+<!-- Top Resep Bar Chart (Custom Styled) -->
+<section class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant soft-press space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-md text-body-lg text-on-surface">Top Resep Terbanyak</h3>
+<span class="material-symbols-outlined text-secondary" data-icon="bar_chart">bar_chart</span>
+</div>
+<div class="space-y-5">
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-label-bold text-on-surface-variant">
+<span>Bumbu Lodeh</span>
+<span>120 Batch</span>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary-container bilah-masak" style="width: 85%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-label-bold text-on-surface-variant">
+<span>Bebek Goreng</span>
+<span>98 Batch</span>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container bilah-masak" style="width: 70%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-label-bold text-on-surface-variant">
+<span>Garang Asem</span>
+<span>75 Batch</span>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container bilah-masak" style="width: 55%"></div>
+</div>
+</div>
+</div>
+</section><section class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant soft-press space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-md text-body-lg text-on-surface">Top Bahan Terpakai</h3>
+<span class="material-symbols-outlined text-secondary" data-icon="inventory_2">inventory_2</span>
+</div>
+<div class="space-y-5">
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-label-bold text-on-surface-variant">
+<span>Tepung Terigu</span>
+<span>245 kg</span>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary-container bilah-masak" style="width: 90%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-label-bold text-on-surface-variant">
+<span>Minyak Goreng</span>
+<span>180 L</span>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container bilah-masak" style="width: 65%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Tren Produksi Line Chart Visual -->
+<section class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant soft-press space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-md text-body-lg text-on-surface">Tren Produksi</h3>
+<span class="material-symbols-outlined text-secondary" data-icon="trending_up">trending_up</span>
+</div>
+<div class="h-32 flex items-end justify-between gap-1 pt-4 border-b border-l border-outline-variant/30 px-2"><div class="w-full bg-primary-container/20 rounded-t-sm h-[40%] relative group">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-primary/10 text-primary text-[10px] font-bold px-1 rounded">32</div>
+</div>
+<div class="w-full bg-primary-container/20 rounded-t-sm h-[60%] relative">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-primary/10 text-primary text-[10px] font-bold px-1 rounded">45</div>
+</div>
+<div class="w-full bg-primary-container/20 rounded-t-sm h-[45%] relative">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-primary/10 text-primary text-[10px] font-bold px-1 rounded">38</div>
+</div>
+<div class="w-full bg-primary-container/20 rounded-t-sm h-[85%] relative">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-primary/10 text-primary text-[10px] font-bold px-1 rounded">72</div>
+</div>
+<div class="w-full bg-primary-container/20 rounded-t-sm h-[70%] relative">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-primary/10 text-primary text-[10px] font-bold px-1 rounded">58</div>
+</div>
+<div class="w-full bg-primary-container/40 rounded-t-sm h-[95%] border-t-2 border-primary relative">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-bold px-1 rounded">84</div>
+</div>
+<div class="w-full bg-primary-container/20 rounded-t-sm h-[55%] relative">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-primary/10 text-primary text-[10px] font-bold px-1 rounded">48</div>
+</div></div>
+<div class="flex justify-between text-[10px] text-on-surface-variant font-label-bold px-2">
+<span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span>
+</div>
+</section>
+<!-- Primary Action Button -->
+<button class="w-full bg-primary text-on-primary font-headline-md text-body-md py-4 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all shadow-lg">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+            Unduh Laporan (CSV/Excel)
+        </button>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 bg-stone-50 border-t-2 border-stone-200 flex justify-around items-center px-4 pb-safe z-50 shadow-[0_-4px_12px_rgba(74,50,31,0.1)] rounded-t-2xl">
+<div class="flex flex-col items-center justify-center text-stone-500 px-4 py-2 hover:text-emerald-700 transition-all active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-plus-jakarta-sans text-[10px] font-extrabold uppercase tracking-widest mt-1">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 px-4 py-2 hover:text-emerald-700 transition-all active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-plus-jakarta-sans text-[10px] font-extrabold uppercase tracking-widest mt-1">Resep</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 px-4 py-2 hover:text-emerald-700 transition-all active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="add_task">add_task</span>
+<span class="font-plus-jakarta-sans text-[10px] font-extrabold uppercase tracking-widest mt-1">Input</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-emerald-100 text-emerald-900 rounded-xl px-4 py-2 min-w-[64px] active:translate-y-0.5 transition-all">
+<span class="material-symbols-outlined" data-icon="analytics" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-plus-jakarta-sans text-[10px] font-extrabold uppercase tracking-widest mt-1">Laporan</span>
+</div>
+</nav>
+<!-- Image Asset Strategy Example (Hidden Placeholder for logic compliance) -->
+<div class="hidden">
+<img data-alt="A clean and professional modern industrial kitchen in Indonesia, featuring stainless steel preparation counters and organized spice jars. The lighting is warm and welcoming with soft amber hues reflecting off wooden accents. The atmosphere is productive and highly organized, showcasing a balance between traditional culinary heritage and modern food safety standards in a bright, light-mode setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDr2B6j69XN4rdq6hS7AGhd44zPDj0AVCm0MylwbHey7WV8fBRhDLMWLcNzdoocM2ifzOj059rWXkhWib4TdE8UmORNc3xKWGeWYhMFVNHp26rxa4EXJzoqDSCEJQaHCO8PNf-IZcviVS4iw9QYhN_y28fm5TsPV0GLCeL0jQ4s1fdeOnkgRGNUffgIOjwE6uBBZRTEl4RVqHlSNNXs8kIL7AKkhfA4Fy_IYMpQNgGhKuKx4SxiODQs3BjGbZXgw1H4PXvx_PBiw-Q"/>
+</div>
+</body></html>

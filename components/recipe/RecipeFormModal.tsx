@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Category {
   id: number;
@@ -12,6 +12,8 @@ interface RecipeFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: RecipeFormData) => void;
+  initialData?: RecipeFormData & { id: number };
+  onDelete?: (id: number) => void;
 }
 
 export interface RecipeFormData {
@@ -28,6 +30,8 @@ export default function RecipeFormModal({
   isOpen,
   onClose,
   onSubmit,
+  initialData,
+  onDelete,
 }: RecipeFormModalProps) {
   const [name, setName] = useState("");
   const [categoryId, setCategoryId] = useState<number>(
@@ -38,6 +42,28 @@ export default function RecipeFormModal({
     { name: "", quantity: 0, unit: "Kg" },
   ]);
   const [submitting, setSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialData) {
+        setName(initialData.name);
+        setCategoryId(initialData.categoryId);
+        setDescription(initialData.description);
+        setIngredients(
+          initialData.ingredients.length > 0
+            ? initialData.ingredients
+            : [{ name: "", quantity: 0, unit: "Kg" }]
+        );
+      } else {
+        setName("");
+        setCategoryId(categories[0]?.id || 1);
+        setDescription("");
+        setIngredients([{ name: "", quantity: 0, unit: "Kg" }]);
+      }
+      setIsDeleting(false);
+    }
+  }, [isOpen, initialData, categories]);
 
   if (!isOpen) return null;
 
@@ -84,11 +110,6 @@ export default function RecipeFormModal({
       ingredients: validIngredients,
     });
     setSubmitting(false);
-
-    // Reset
-    setName("");
-    setDescription("");
-    setIngredients([{ name: "", quantity: 0, unit: "Kg" }]);
   };
 
   const inputClass =
@@ -117,7 +138,7 @@ export default function RecipeFormModal({
         {/* Header */}
         <div className="sticky top-0 bg-surface-container-lowest border-b border-outline-variant px-[20px] py-[16px] flex items-center justify-between z-10">
           <h2 className="text-headline-md font-[700] text-on-surface">
-            Resep Baru
+            {initialData ? "Edit Resep" : "Resep Baru"}
           </h2>
           <button
             onClick={onClose}
@@ -245,6 +266,30 @@ export default function RecipeFormModal({
 
         {/* Footer */}
         <div className="sticky bottom-0 bg-surface-container-lowest border-t border-outline-variant p-[20px] flex gap-[12px]">
+          {initialData && onDelete && (
+            <button
+              onClick={() => {
+                if (
+                  confirm(
+                    "Apakah Anda yakin ingin menghapus resep ini? Peringatan: Semua log riwayat produksi untuk resep ini juga akan terhapus secara permanen!"
+                  )
+                ) {
+                  setIsDeleting(true);
+                  onDelete(initialData.id);
+                }
+              }}
+              disabled={isDeleting || submitting}
+              className="w-[56px] h-[56px] rounded-lg border-2 border-error text-error flex items-center justify-center hover:bg-error-container/30 transition-all disabled:opacity-50 flex-shrink-0"
+              title="Hapus Resep"
+            >
+              {isDeleting ? (
+                <div className="w-5 h-5 border-2 border-error/30 border-t-error rounded-full animate-spin" />
+              ) : (
+                <span className="material-symbols-outlined">delete</span>
+              )}
+            </button>
+          )}
+
           <button
             onClick={onClose}
             className="flex-1 h-[56px] rounded-lg font-[700] text-label-bold border-2 border-outline text-on-surface-variant hover:bg-surface-container-high active:scale-[0.98] transition-all"
