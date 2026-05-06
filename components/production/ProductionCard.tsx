@@ -28,12 +28,9 @@ export default function ProductionCard({
     >
       {/* Top Section */}
       <div className="p-4 flex-1">
-        <h2 className="text-headline-md font-[700] text-on-surface mb-2">
+        <h2 className="text-headline-md font-[700] text-on-surface">
           {name}
         </h2>
-        <p className="text-body-md font-[400] text-on-surface-variant">
-          Batch Produksi Harian
-        </p>
       </div>
 
       {/* Bottom Section: Counter */}
