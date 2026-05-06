@@ -90,15 +90,24 @@ export default function RecipeFormModal({
     "w-full h-[56px] px-[16px] rounded-lg bg-surface-container-high border-2 border-surface-container-high focus:border-secondary-container focus:bg-surface-container-lowest focus:ring-0 outline-none text-body-md font-[400] transition-all duration-200";
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center">
+    <div className="fixed inset-0 z-[60]">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal */}
-      <div className="relative bg-white rounded-t-2xl md:rounded-2xl w-full max-w-lg min-h-[60vh] max-h-[90vh] overflow-y-auto shadow-[0_-8px_32px_rgba(0,0,0,0.25)] md:shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
+      {/* Modal — bottom sheet on mobile, centered on desktop */}
+      <div
+        className="
+          absolute bottom-0 left-0 right-0
+          md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2
+          bg-white rounded-t-2xl md:rounded-2xl
+          md:max-w-lg md:w-[90%]
+          max-h-[85vh] overflow-y-auto
+          shadow-[0_-8px_32px_rgba(0,0,0,0.25)]
+        "
+      >
         {/* Header */}
         <div className="sticky top-0 bg-surface-container-lowest border-b border-outline-variant px-[20px] py-[16px] flex items-center justify-between z-10">
           <h2 className="text-headline-md font-[700] text-on-surface">
