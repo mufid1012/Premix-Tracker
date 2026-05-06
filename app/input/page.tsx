@@ -22,6 +22,7 @@ export default function InputPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [batchCounts, setBatchCounts] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -30,11 +31,12 @@ export default function InputPage() {
   const fetchRecipes = useCallback(async () => {
     const params = new URLSearchParams();
     if (activeCategory !== "all") params.set("category", activeCategory);
+    if (searchQuery.trim()) params.set("search", searchQuery.trim());
     const res = await fetch(`/api/recipes?${params}`);
     const data = await res.json();
     setRecipes(data);
     setLoading(false);
-  }, [activeCategory]);
+  }, [activeCategory, searchQuery]);
 
   useEffect(() => {
     fetch("/api/categories")
@@ -103,8 +105,23 @@ export default function InputPage() {
 
   return (
     <div className="px-[20px] md:px-[32px] max-w-7xl mx-auto pb-[140px] md:pb-[120px]">
-      {/* Category Tabs — sticky below TopAppBar */}
-      <section className="sticky top-[64px] bg-background z-30 py-4 -mx-[20px] px-[20px] md:mx-0 md:px-0">
+      {/* Search and Category Tabs — sticky below TopAppBar */}
+      <section className="sticky top-[64px] bg-background z-30 py-4 -mx-[20px] px-[20px] md:mx-0 md:px-0 space-y-4">
+        {/* Search Bar */}
+        <div className="relative w-full">
+          <span className="material-symbols-outlined absolute left-[12px] top-1/2 -translate-y-1/2 text-outline">
+            search
+          </span>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Cari resep..."
+            className="w-full h-[56px] pl-[44px] pr-[12px] rounded-lg bg-surface-container-high border-2 border-surface-container-high focus:border-secondary-container focus:bg-surface-container-lowest focus:ring-0 outline-none text-body-md font-[400] transition-all duration-200 shadow-[inset_0_2px_4px_rgba(74,50,31,0.02)]"
+          />
+        </div>
+
+        {/* Category Tabs */}
         <div className="flex overflow-x-auto no-scrollbar gap-[12px] pb-2">
           <button
             onClick={() => setActiveCategory("all")}
