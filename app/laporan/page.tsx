@@ -73,9 +73,9 @@ export default function LaporanPage() {
   };
 
   return (
-    <div className="p-[20px] md:p-[32px] max-w-lg md:max-w-4xl mx-auto space-y-[24px]">
+    <div className="p-[20px] md:p-[32px] max-w-4xl mx-auto space-y-[24px] pb-[100px]">
       {/* Header */}
-      <div>
+      <div className="mb-[32px] pt-[12px] md:pt-[32px]">
         <h1 className="text-display-lg font-[800] tracking-[-0.02em] text-on-surface mb-[4px]">
           Laporan Produksi
         </h1>
