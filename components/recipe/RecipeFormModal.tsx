@@ -34,8 +34,6 @@ export default function RecipeFormModal({
     categories[0]?.id || 1
   );
   const [description, setDescription] = useState("");
-  const [standardBatchKg, setStandardBatchKg] = useState<number>(5);
-  const [unit, setUnit] = useState("Kg");
   const [ingredients, setIngredients] = useState([
     { name: "", quantity: 0, unit: "Kg" },
   ]);
@@ -62,19 +60,27 @@ export default function RecipeFormModal({
   };
 
   const handleSubmit = async () => {
-    if (!name.trim() || standardBatchKg <= 0) return;
+    if (!name.trim()) return;
 
     const validIngredients = ingredients.filter(
       (ing) => ing.name.trim() && ing.quantity > 0
     );
+
+    // Auto-calculate standard batch from ingredients
+    const totalBerat = validIngredients.reduce((sum, ing) => {
+      const u = ing.unit.toLowerCase();
+      const inKg = u === "kg" || u === "liter" || u === "l" ? ing.quantity : ing.quantity / 1000;
+      return sum + inKg;
+    }, 0);
+    const calculatedBatchKg = totalBerat > 0 ? totalBerat : 1;
 
     setSubmitting(true);
     await onSubmit({
       name: name.trim(),
       categoryId,
       description: description.trim(),
-      standardBatchKg,
-      unit,
+      standardBatchKg: calculatedBatchKg,
+      unit: "Kg",
       ingredients: validIngredients,
     });
     setSubmitting(false);
@@ -82,7 +88,6 @@ export default function RecipeFormModal({
     // Reset
     setName("");
     setDescription("");
-    setStandardBatchKg(5);
     setIngredients([{ name: "", quantity: 0, unit: "Kg" }]);
   };
 
@@ -156,36 +161,7 @@ export default function RecipeFormModal({
             </select>
           </div>
 
-          {/* Batch Size Row */}
-          <div className="flex gap-[12px]">
-            <div className="flex-1">
-              <label className="block text-label-bold font-[700] text-on-surface-variant mb-[8px]">
-                Standar Batch *
-              </label>
-              <input
-                type="number"
-                value={standardBatchKg}
-                onChange={(e) => setStandardBatchKg(Number(e.target.value))}
-                min={0.1}
-                step={0.5}
-                className={inputClass}
-              />
-            </div>
-            <div className="w-24">
-              <label className="block text-label-bold font-[700] text-on-surface-variant mb-[8px]">
-                Unit
-              </label>
-              <select
-                value={unit}
-                onChange={(e) => setUnit(e.target.value)}
-                className={inputClass}
-              >
-                <option value="Kg">Kg</option>
-                <option value="Liter">Liter</option>
-                <option value="Porsi">Porsi</option>
-              </select>
-            </div>
-          </div>
+
 
           {/* Description */}
           <div>
