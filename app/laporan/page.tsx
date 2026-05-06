@@ -85,7 +85,7 @@ export default function LaporanPage() {
             Ringkasan performa dan pemakaian bahan.
           </p>
           {data && (
-            <p className="text-label-bold font-[700] text-primary bg-primary-container px-3 py-1 rounded-full w-fit">
+            <p className="text-label-bold font-[700] text-[#FFFFFF] bg-[#6B8E23] px-3 py-1 rounded-full w-fit">
               <span className="material-symbols-outlined text-[14px] align-middle mr-1">calendar_today</span>
               {data.dateRange}
             </p>
