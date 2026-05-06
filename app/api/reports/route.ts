@@ -105,8 +105,7 @@ export async function GET(request: NextRequest) {
 
     // Format top recipes
     const sortedRecipes = Array.from(recipeMap.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3);
+      .sort((a, b) => b[1] - a[1]);
     const maxRecipeBatch = sortedRecipes.length > 0 ? sortedRecipes[0][1] : 1;
     const topRecipes = sortedRecipes.map(([name, batches]) => ({
       name,
@@ -117,8 +116,7 @@ export async function GET(request: NextRequest) {
 
     // Format top ingredients
     const sortedIngredients = Array.from(ingredientMap.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3);
+      .sort((a, b) => b[1] - a[1]);
     const maxIngredientKg = sortedIngredients.length > 0 ? sortedIngredients[0][1] : 1;
     const topIngredients = sortedIngredients.map(([name, kg]) => ({
       name,
