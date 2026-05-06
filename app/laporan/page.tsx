@@ -44,12 +44,12 @@ export default function LaporanPage() {
     lines.push("");
 
     lines.push("RINGKASAN");
-    lines.push(`Total Adonan Selesai,${data.summary.totalBatch} Batch`);
+    lines.push(`Total Adonan Selesai,${data.summary.totalBatch} Resep`);
     lines.push(`Total Bahan Terpakai,${data.summary.totalBahanKg} Kg`);
     lines.push("");
 
     lines.push("TOP RESEP");
-    lines.push("Nama Resep,Jumlah (Batch)");
+    lines.push("Nama Resep,Jumlah (Resep)");
     data.topRecipes.forEach((r) => lines.push(`"${r.name}",${r.value}`));
     lines.push("");
 
@@ -59,7 +59,7 @@ export default function LaporanPage() {
     lines.push("");
 
     lines.push("TREN PRODUKSI");
-    lines.push("Periode,Jumlah (Batch)");
+    lines.push("Periode,Jumlah (Resep)");
     data.trendData.forEach((t) => lines.push(`${t.label},${t.value}`));
 
     const csvContent = lines.join("\n");
@@ -109,7 +109,7 @@ export default function LaporanPage() {
             <StatCard
               title="Adonan Selesai"
               value={data.summary.totalBatch}
-              unit="Batch"
+              unit="Resep"
               icon="restaurant_menu"
             />
             <StatCard

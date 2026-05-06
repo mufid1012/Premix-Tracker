@@ -136,7 +136,7 @@ export default function ResepPage() {
             Manajemen Resep
           </h1>
           <p className="text-body-md font-[400] text-on-surface-variant">
-            Panduan proporsi standar untuk 1 batch produksi.
+            Panduan proporsi standar untuk 1 resep produksi.
           </p>
         </div>
 

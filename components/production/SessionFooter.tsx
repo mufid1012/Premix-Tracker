@@ -37,7 +37,7 @@ export default function SessionFooter({
               <span className="material-symbols-outlined text-[20px]">
                 check_circle
               </span>
-              Selesaikan Sesi ({totalBatch} batch)
+              Selesaikan Sesi ({totalBatch} resep)
             </>
           )}
         </button>

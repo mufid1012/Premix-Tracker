@@ -81,9 +81,9 @@ export default function DashboardPage() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-[20px] stagger-children">
             <MetricCard
-              title="Total Batch Hari Ini"
+              title="Total Resep Hari Ini"
               value={data.totalBatchToday}
-              unit="batch"
+              unit="resep"
               trend={data.batchTrend}
               icon="restaurant"
               variant="primary"
@@ -118,7 +118,7 @@ export default function DashboardPage() {
             Belum ada produksi hari ini
           </p>
           <p className="text-body-md text-on-surface-variant mb-[20px]">
-            Mulai catat batch produksi pertama Anda.
+            Mulai catat resep produksi pertama Anda.
           </p>
           <Link
             href="/input"

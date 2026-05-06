@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
     const topRecipes = sortedRecipes.map(([name, batches]) => ({
       name,
       value: batches,
-      unit: "Batch",
+      unit: "Resep",
       percentage: Math.round((batches / maxRecipeBatch) * 100) || 0,
     }));
 

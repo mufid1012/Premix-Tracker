@@ -90,12 +90,12 @@ export default function RecipeCard({
 
           {/* Ingredients List */}
           <div className="bg-surface-container-low rounded-lg p-[12px] border border-surface-container-highest">
-            <h3 className="font-[700] text-label-bold text-on-surface mb-[4px] px-2 border-b border-surface-container-highest pb-2 flex items-center">
-              <span className="material-symbols-outlined mr-2 text-primary">
-                scale
-              </span>
-              Komposisi Bahan (1 Batch)
-            </h3>
+            <div className="flex items-center gap-[8px] mb-[12px]">
+            <span className="material-symbols-outlined text-[18px] text-primary">science</span>
+            <h4 className="text-[14px] font-[700] text-on-surface-variant">
+              Komposisi Bahan (1 Resep)
+            </h4>
+          </div>
             <ul className="text-body-md font-[400] text-on-surface">
               {ingredients.map((ing) => (
                 <li
