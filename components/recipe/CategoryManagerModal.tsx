@@ -127,7 +127,10 @@ export default function CategoryManagerModal({
                   "category", "restaurant_menu", "fastfood", "local_pizza", 
                   "local_cafe", "set_meal", "soup_kitchen", "bakery_dining", 
                   "icecream", "liquor", "kitchen", "blender", "egg", 
-                  "water_drop", "grass", "eco", "scale", "inventory_2"
+                  "water_drop", "grass", "eco", "scale", "inventory_2",
+                  "lunch_dining", "ramen_dining", "takeout_dining", "local_dining",
+                  "brunch_dining", "rice_bowl", "cookie", "cake", "bento", "kebab_dining",
+                  "coffee", "grocery"
                 ].map((icon) => (
                   <button
                     key={icon}
