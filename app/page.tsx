@@ -79,7 +79,7 @@ export default function DashboardPage() {
       {/* Bento Grid Metrics */}
       {data && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-[20px]">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-[20px] stagger-children">
             <MetricCard
               title="Total Batch Hari Ini"
               value={data.totalBatchToday}
@@ -99,7 +99,9 @@ export default function DashboardPage() {
           </div>
 
           {/* Trend Chart */}
-          <TrendChart data={data.weeklyTrend} />
+          <div className="animate-slide-up">
+            <TrendChart data={data.weeklyTrend} />
+          </div>
         </>
       )}
 

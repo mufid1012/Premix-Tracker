@@ -132,7 +132,7 @@ export default function ResepPage() {
 
       {/* Recipe List */}
       {!loading && (
-        <div className="flex flex-col gap-[20px]">
+        <div className="flex flex-col gap-[20px] stagger-children">
           {recipes.map((recipe, idx) => (
             <RecipeCard
               key={recipe.id}
@@ -141,8 +141,6 @@ export default function ResepPage() {
               categoryName={recipe.category.name}
               categoryIcon={recipe.category.icon}
               description={recipe.description}
-              standardBatchKg={recipe.standardBatchKg}
-              unit={recipe.unit}
               ingredients={recipe.ingredients}
               variant={idx % 2 === 0 ? "primary" : "secondary"}
             />

@@ -142,7 +142,7 @@ export default function InputPage() {
 
       {/* Success Toast */}
       {successMessage && (
-        <div className="fixed top-20 left-0 right-0 mx-[20px] z-[70]">
+        <div className="fixed top-20 left-0 right-0 mx-[20px] z-[70] animate-slide-up">
           <div className="bg-primary-container text-on-primary-container rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.25)] px-[20px] py-[16px] md:max-w-sm md:mx-auto">
             <p className="text-body-md font-[700] text-center">
               {successMessage}
@@ -163,7 +163,7 @@ export default function InputPage() {
 
       {/* Recipe Cards Grid */}
       {!loading && (
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[20px] pt-[12px]">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[20px] pt-[12px] stagger-children">
           {recipes.map((recipe) => (
             <ProductionCard
               key={recipe.id}

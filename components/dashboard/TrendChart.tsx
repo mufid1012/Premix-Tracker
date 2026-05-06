@@ -35,8 +35,8 @@ export default function TrendChart({ data }: TrendChartProps) {
       </div>
 
       {/* Chart */}
-      <div className="h-64 w-full">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="h-64 w-full min-h-[200px]">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
           <BarChart data={data} barCategoryGap="20%">
             <CartesianGrid
               strokeDasharray="3 3"

@@ -93,7 +93,7 @@ export default function RecipeFormModal({
     <div className="fixed inset-0 z-[60]">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
 
@@ -106,6 +106,7 @@ export default function RecipeFormModal({
           md:max-w-lg md:w-[90%]
           max-h-[85vh] overflow-y-auto
           shadow-[0_-8px_32px_rgba(0,0,0,0.25)]
+          animate-slide-up
         "
       >
         {/* Header */}
