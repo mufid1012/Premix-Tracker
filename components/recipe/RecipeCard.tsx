@@ -13,8 +13,6 @@ interface RecipeCardProps {
   categoryName: string;
   categoryIcon: string | null;
   description: string | null;
-  standardBatchKg: number;
-  unit: string;
   ingredients: Ingredient[];
   variant?: "primary" | "secondary";
 }

@@ -73,7 +73,7 @@ export default function TrendChart({ data }: TrendChartProps) {
                 fontWeight: 700,
               }}
               labelStyle={{ color: "#1c1c19", fontWeight: 700 }}
-              formatter={(value: number) => [`${value} Kg`, "Bahan Terpakai"]}
+              formatter={(value: any) => [`${value} Kg`, "Bahan Terpakai"]}
               cursor={{ fill: "rgba(45, 90, 39, 0.05)" }}
             />
             <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={48}>
