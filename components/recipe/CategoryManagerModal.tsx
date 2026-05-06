@@ -104,16 +104,6 @@ export default function CategoryManagerModal({
           <div className="bg-surface-container-low p-4 rounded-xl border border-outline-variant space-y-3">
             <h3 className="font-[700] text-label-bold text-on-surface">Tambah Kategori Baru</h3>
             <div className="flex gap-2">
-              <div className="w-16">
-                <input
-                  type="text"
-                  value={newCatIcon}
-                  onChange={(e) => setNewCatIcon(e.target.value)}
-                  placeholder="Ikon"
-                  className="w-full h-[48px] px-2 rounded-lg bg-white border border-outline-variant focus:border-primary text-center text-xs"
-                  title="Material Symbols Icon Name"
-                />
-              </div>
               <input
                 type="text"
                 value={newCatName}
@@ -124,10 +114,35 @@ export default function CategoryManagerModal({
               <button
                 onClick={handleAdd}
                 disabled={adding || !newCatName.trim()}
-                className="h-[48px] px-4 rounded-lg bg-primary text-on-primary font-[700] disabled:opacity-50"
+                className="h-[48px] px-4 rounded-lg bg-primary text-on-primary font-[700] disabled:opacity-50 shrink-0"
               >
                 {adding ? "..." : "Tambah"}
               </button>
+            </div>
+            
+            <div>
+              <p className="text-[12px] font-[700] text-on-surface-variant mb-2">Pilih Ikon:</p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "category", "restaurant_menu", "fastfood", "local_pizza", 
+                  "local_cafe", "set_meal", "soup_kitchen", "bakery_dining", 
+                  "icecream", "liquor", "kitchen", "blender", "egg", 
+                  "water_drop", "grass", "eco", "scale", "inventory_2"
+                ].map((icon) => (
+                  <button
+                    key={icon}
+                    onClick={() => setNewCatIcon(icon)}
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center border-2 transition-all ${
+                      newCatIcon === icon
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-outline-variant text-on-surface-variant hover:bg-surface-container-highest"
+                    }`}
+                    title={icon}
+                  >
+                    <span className="material-symbols-outlined text-[20px]">{icon}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

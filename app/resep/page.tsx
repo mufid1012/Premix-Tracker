@@ -155,8 +155,16 @@ export default function ResepPage() {
             />
           </div>
           <button
+            onClick={() => setShowCategoryModal(true)}
+            className="shrink-0 w-[56px] h-[56px] rounded-lg border-2 border-outline-variant text-on-surface-variant hover:bg-surface-container-high shadow-[0_2px_4px_rgba(74,50,31,0.02)] active:scale-95 transition-all flex items-center justify-center"
+            title="Kelola Kategori"
+          >
+            <span className="material-symbols-outlined">category</span>
+          </button>
+          <button
             onClick={() => setShowModal(true)}
             className="shrink-0 w-[56px] h-[56px] rounded-lg bg-primary text-on-primary shadow-soft-press active:scale-95 transition-transform flex items-center justify-center"
+            title="Tambah Resep"
           >
             <span
               className="material-symbols-outlined"
@@ -168,22 +176,15 @@ export default function ResepPage() {
         </div>
       </div>
 
-      {/* Category Filters & Manage Button */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-[16px] mb-[24px]">
-        <div className="flex-1 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
+      {/* Category Filters */}
+      <div className="mb-[24px]">
+        <div className="w-full overflow-x-auto pb-2 hide-scrollbar">
           <CategoryFilter
             categories={categories}
             activeId={activeCategory}
             onSelect={setActiveCategory}
           />
         </div>
-        <button
-          onClick={() => setShowCategoryModal(true)}
-          className="shrink-0 inline-flex items-center gap-[8px] h-[40px] px-[16px] rounded-lg border-2 border-outline-variant text-on-surface-variant font-[700] text-label-bold hover:bg-surface-container-high active:scale-95 transition-all"
-        >
-          <span className="material-symbols-outlined text-[18px]">settings</span>
-          Kelola Kategori
-        </button>
       </div>
 
       {/* Loading */}
