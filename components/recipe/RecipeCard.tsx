@@ -27,13 +27,25 @@ export default function RecipeCard({
   ingredients,
   variant = "primary",
 }: RecipeCardProps) {
-  // Hitung total berat semua bahan
-  const totalBerat = ingredients.reduce((sum, ing) => {
+  // Hitung total berat semua bahan dalam Kg
+  const totalBeratKg = ingredients.reduce((sum, ing) => {
     const u = ing.unit.toLowerCase();
-    const inKg = u === "kg" ? ing.quantity : ing.quantity / 1000;
+    const inKg = u === "kg" || u === "liter" || u === "l" ? ing.quantity : ing.quantity / 1000;
     return sum + inKg;
   }, 0);
-  const totalBeratFormatted = Math.round(totalBerat * 10) / 10;
+  
+  const totalBeratGram = totalBeratKg * 1000;
+  
+  let displayBerat: number;
+  let displayUnit: string;
+
+  if (totalBeratGram >= 1000) {
+    displayBerat = Math.round(totalBeratKg * 10) / 10;
+    displayUnit = "Kg";
+  } else {
+    displayBerat = Math.round(totalBeratGram);
+    displayUnit = "gram";
+  }
 
   const borderColor =
     variant === "primary" ? "border-t-primary" : "border-t-secondary-container";
@@ -64,7 +76,7 @@ export default function RecipeCard({
                 Total Berat
               </span>
               <span className="text-body-lg font-[700] text-primary">
-                {totalBeratFormatted} Kg
+                {displayBerat} {displayUnit}
               </span>
             </div>
           </div>
