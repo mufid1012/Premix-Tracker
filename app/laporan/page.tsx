@@ -9,6 +9,7 @@ import SimpleBarChart from "@/components/report/SimpleBarChart";
 type Period = "harian" | "mingguan" | "bulanan";
 
 interface ReportData {
+  dateRange: string;
   summary: {
     totalBatch: number;
     totalBahanKg: number;
@@ -79,9 +80,17 @@ export default function LaporanPage() {
         <h1 className="text-display-lg font-[800] tracking-[-0.02em] text-on-surface mb-[4px]">
           Laporan Produksi
         </h1>
-        <p className="text-body-md font-[400] text-on-surface-variant">
-          Ringkasan performa dan pemakaian bahan.
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <p className="text-body-md font-[400] text-on-surface-variant">
+            Ringkasan performa dan pemakaian bahan.
+          </p>
+          {data && (
+            <p className="text-label-bold font-[700] text-primary bg-primary-container px-3 py-1 rounded-full w-fit">
+              <span className="material-symbols-outlined text-[14px] align-middle mr-1">calendar_today</span>
+              {data.dateRange}
+            </p>
+          )}
+        </div>
       </div>
 
       <PeriodSelector period={period} onChange={setPeriod} />

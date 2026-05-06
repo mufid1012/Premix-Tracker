@@ -137,7 +137,31 @@ export async function GET(request: NextRequest) {
       isPeak: maxTrendValue > 0 && d.value === maxTrendValue,
     }));
 
+    // Format Date Range string for UI
+    const formatDate = (date: Date) => {
+      return date.toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+    };
+
+    let dateRangeStr = "";
+    if (period === "harian") {
+      dateRangeStr = formatDate(startDate);
+    } else if (period === "mingguan") {
+      // endDate is actually the start of the *next* day, so subtract 1 ms to get the end of the current period
+      const actualEndDate = new Date(endDate.getTime() - 1);
+      dateRangeStr = `${formatDate(startDate)} - ${formatDate(actualEndDate)}`;
+    } else if (period === "bulanan") {
+      dateRangeStr = startDate.toLocaleDateString("id-ID", {
+        month: "long",
+        year: "numeric",
+      });
+    }
+
     return NextResponse.json({
+      dateRange: dateRangeStr,
       summary: {
         totalBatch,
         totalBahanKg: Math.round(totalBahanKg * 10) / 10,
