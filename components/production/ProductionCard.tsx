@@ -50,16 +50,14 @@ export default function ProductionCard({
           )}
         </div>
         <p className="text-body-md font-[400] text-on-surface-variant mb-4">
-          {isCompleted ? "Batch Produksi Harian" : "Stok Aman"}
+          Batch Produksi Harian
         </p>
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-outline">
-            {isCompleted ? "scale" : "check_circle"}
+            scale
           </span>
           <span className="text-body-md font-[400] text-on-surface-variant">
-            {isCompleted
-              ? `Target: ${standardBatchKg} ${unit}`
-              : "Target Tercapai"}
+            {standardBatchKg} {unit} / batch
           </span>
         </div>
       </div>

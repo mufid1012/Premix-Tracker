@@ -24,11 +24,17 @@ export default function RecipeCard({
   categoryName,
   categoryIcon,
   description,
-  standardBatchKg,
-  unit,
   ingredients,
   variant = "primary",
 }: RecipeCardProps) {
+  // Hitung total berat semua bahan
+  const totalBerat = ingredients.reduce((sum, ing) => {
+    const u = ing.unit.toLowerCase();
+    const inKg = u === "kg" ? ing.quantity : ing.quantity / 1000;
+    return sum + inKg;
+  }, 0);
+  const totalBeratFormatted = Math.round(totalBerat * 10) / 10;
+
   const borderColor =
     variant === "primary" ? "border-t-primary" : "border-t-secondary-container";
 
@@ -55,10 +61,10 @@ export default function RecipeCard({
             </div>
             <div className="text-right">
               <span className="block font-[700] text-label-bold text-on-surface-variant">
-                Standar Batch
+                Total Berat
               </span>
               <span className="text-body-lg font-[700] text-primary">
-                {standardBatchKg} {unit}
+                {totalBeratFormatted} Kg
               </span>
             </div>
           </div>
