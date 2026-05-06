@@ -93,12 +93,12 @@ export default function RecipeFormModal({
     <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-inverse-surface/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative bg-surface-container-lowest rounded-t-2xl md:rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-[0_-8px_32px_rgba(74,50,31,0.15)] md:shadow-[0_8px_32px_rgba(74,50,31,0.15)]">
+      <div className="relative bg-white rounded-t-2xl md:rounded-2xl w-full max-w-lg min-h-[60vh] max-h-[90vh] overflow-y-auto shadow-[0_-8px_32px_rgba(0,0,0,0.25)] md:shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
         {/* Header */}
         <div className="sticky top-0 bg-surface-container-lowest border-b border-outline-variant px-[20px] py-[16px] flex items-center justify-between z-10">
           <h2 className="text-headline-md font-[700] text-on-surface">

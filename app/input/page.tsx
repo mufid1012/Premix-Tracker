@@ -142,8 +142,8 @@ export default function InputPage() {
 
       {/* Success Toast */}
       {successMessage && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-[0_8px_24px_rgba(74,50,31,0.15)] px-[20px] py-[16px] max-w-sm animate-[fadeIn_0.3s_ease]">
-          <p className="text-body-md font-[500] text-on-surface text-center">
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[70] w-[calc(100%-40px)] max-w-sm bg-primary-container text-on-primary-container rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.25)] px-[20px] py-[16px]">
+          <p className="text-body-md font-[700] text-center">
             {successMessage}
           </p>
         </div>
