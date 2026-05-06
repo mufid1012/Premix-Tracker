@@ -169,9 +169,6 @@ export default function InputPage() {
               key={recipe.id}
               id={recipe.id}
               name={recipe.name}
-              standardBatchKg={recipe.standardBatchKg}
-              unit={recipe.unit}
-              isUrgent={recipe.isUrgent}
               batchCount={batchCounts[recipe.id] || 0}
               onIncrement={handleIncrement}
               onDecrement={handleDecrement}
