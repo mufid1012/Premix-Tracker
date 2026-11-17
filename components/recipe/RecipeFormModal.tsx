@@ -15,7 +15,7 @@ interface RecipeFormModalProps {
   onClose: () => void;
   onSubmit: (data: RecipeFormData) => void;
   initialData?: RecipeFormData & { id: number };
-  onDelete?: (id: number) => void;
+  onDelete?: (id: number) => Promise<void> | void;
 }
 
 export interface RecipeFormData {
@@ -120,14 +120,15 @@ export default function RecipeFormModal({
       {initialData && onDelete && (
         <button
           type="button"
-          onClick={() => {
+          onClick={async () => {
             if (
               confirm(
                 "Hapus resep ini? Riwayat produksi resep ini tetap tersimpan di laporan."
               )
             ) {
               setIsDeleting(true);
-              onDelete(initialData.id);
+              await onDelete(initialData.id);
+              setIsDeleting(false); // bila gagal atau PIN dibatalkan, tombol aktif lagi
             }
           }}
           disabled={isDeleting || submitting}

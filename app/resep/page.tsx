@@ -6,6 +6,7 @@ import SearchField from "@/components/recipe/SearchField";
 import RecipeCard from "@/components/recipe/RecipeCard";
 import RecipeFormModal, { type RecipeFormData } from "@/components/recipe/RecipeFormModal";
 import CategoryManagerModal from "@/components/recipe/CategoryManagerModal";
+import { useAdminFetch } from "@/components/PinProvider";
 
 interface Category {
   id: number;
@@ -31,6 +32,8 @@ interface Recipe {
 }
 
 export default function ResepPage() {
+  // Aksi yang mengubah resep/kategori bisa meminta PIN pemilik (401 + dialog PIN)
+  const adminFetch = useAdminFetch();
   const [categories, setCategories] = useState<Category[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [activeCategory, setActiveCategory] = useState("all");
@@ -72,7 +75,7 @@ export default function ResepPage() {
   }, [fetchRecipes]);
 
   const handleCreateRecipe = async (data: RecipeFormData) => {
-    const res = await fetch("/api/recipes", {
+    const res = await adminFetch("/api/recipes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -80,14 +83,14 @@ export default function ResepPage() {
     if (res.ok) {
       setShowModal(false);
       fetchRecipes();
-    } else {
+    } else if (res.status !== 401) {
       alert("Gagal menyimpan resep. Coba lagi.");
     }
   };
 
   const handleEditRecipe = async (data: RecipeFormData) => {
     if (!editRecipeData) return;
-    const res = await fetch(`/api/recipes/${editRecipeData.id}`, {
+    const res = await adminFetch(`/api/recipes/${editRecipeData.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -95,26 +98,26 @@ export default function ResepPage() {
     if (res.ok) {
       setEditRecipeData(null);
       fetchRecipes();
-    } else {
+    } else if (res.status !== 401) {
       alert("Gagal menyimpan resep. Coba lagi.");
     }
   };
 
   const handleDeleteRecipe = async (id: number) => {
-    const res = await fetch(`/api/recipes/${id}`, {
+    const res = await adminFetch(`/api/recipes/${id}`, {
       method: "DELETE",
     });
     if (res.ok) {
       setEditRecipeData(null);
       fetchRecipes();
-    } else {
+    } else if (res.status !== 401) {
       const err = await res.json();
       alert(err.error || "Gagal menghapus resep");
     }
   };
 
   const handleAddCategory = async (name: string, icon: string) => {
-    const res = await fetch("/api/categories", {
+    const res = await adminFetch("/api/categories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, icon }),
@@ -128,7 +131,7 @@ export default function ResepPage() {
   };
 
   const handleDeleteCategory = async (id: number) => {
-    const res = await fetch(`/api/categories/${id}`, {
+    const res = await adminFetch(`/api/categories/${id}`, {
       method: "DELETE",
     });
     if (!res.ok) {

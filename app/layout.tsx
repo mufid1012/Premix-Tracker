@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Tektur } from "next/font/google";
 import "./globals.css";
 import TopAppBar from "@/components/layout/TopAppBar";
 import BottomNavBar from "@/components/layout/BottomNavBar";
+import PinProvider from "@/components/PinProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -26,6 +27,11 @@ export const metadata: Metadata = {
   title: "Produksi Dapur | Tracking Premix",
   description:
     "Aplikasi pencatatan, pelacakan, dan analisis produksi adonan warung.",
+  appleWebApp: { capable: true, title: "Produksi", statusBarStyle: "black" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#242628",
 };
 
 export default function RootLayout({
@@ -48,7 +54,7 @@ export default function RootLayout({
         <TopAppBar />
 
         <main className="flex-1 flex flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
-          {children}
+          <PinProvider>{children}</PinProvider>
           {/* Garis bingkai diteruskan sampai dasar layar */}
           <div aria-hidden="true" className="frame grow min-h-8" />
         </main>

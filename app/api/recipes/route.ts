@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/adminAuth";
 
 // GET /api/recipes — List all recipes with optional category/search filter
 export async function GET(request: NextRequest) {
@@ -26,7 +27,11 @@ export async function GET(request: NextRequest) {
           orderBy: { sortOrder: "asc" },
         },
       },
-      orderBy: { createdAt: "desc" },
+      // ?sort=popular: resep yang paling sering dicatat di produksi tampil paling atas
+      orderBy:
+        searchParams.get("sort") === "popular"
+          ? [{ productions: { _count: "desc" } }, { name: "asc" }]
+          : { createdAt: "desc" },
     });
 
     return NextResponse.json(recipes);
@@ -41,6 +46,8 @@ export async function GET(request: NextRequest) {
 
 // POST /api/recipes — Create a new recipe
 export async function POST(request: NextRequest) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
   try {
     const body = await request.json();
     const { name, categoryId, description, standardBatchKg, unit, ingredients } =

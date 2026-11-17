@@ -68,7 +68,7 @@ export default function InputPage() {
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
   const fetchRecipes = useCallback(async () => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams({ sort: "popular" });
     if (activeCategory !== "all") params.set("category", activeCategory);
     if (searchQuery.trim()) params.set("search", searchQuery.trim());
     try {

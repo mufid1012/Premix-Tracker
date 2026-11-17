@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/adminAuth";
+
+// Sesi yang umurnya kurang dari ini boleh dihapus tanpa PIN (tombol Batalkan setelah menyimpan).
+const UNDO_WINDOW_MS = 60_000;
 
 // DELETE /api/productions/:id: hapus satu sesi beserta entry dan snapshot bahannya (FK cascade)
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -12,11 +16,20 @@ export async function DELETE(
       return NextResponse.json({ error: "ID sesi tidak valid" }, { status: 400 });
     }
 
-    const { count } = await prisma.productionSession.deleteMany({ where: { id: sessionId } });
-    if (count === 0) {
+    const session = await prisma.productionSession.findUnique({
+      where: { id: sessionId },
+      select: { createdAt: true },
+    });
+    if (!session) {
       return NextResponse.json({ error: "Sesi tidak ditemukan" }, { status: 404 });
     }
 
+    if (Date.now() - session.createdAt.getTime() > UNDO_WINDOW_MS) {
+      const denied = requireAdmin(request);
+      if (denied) return denied;
+    }
+
+    await prisma.productionSession.deleteMany({ where: { id: sessionId } });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Productions DELETE error:", error);

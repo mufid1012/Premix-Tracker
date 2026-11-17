@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useAdminFetch } from "@/components/PinProvider";
 
 interface Session {
   id: number;
@@ -40,6 +41,7 @@ const groupByDay = (sessions: Session[]) => {
 };
 
 export default function RiwayatPage() {
+  const adminFetch = useAdminFetch();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [nextBefore, setNextBefore] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -86,7 +88,8 @@ export default function RiwayatPage() {
     setDeletingId(s.id);
     setMessage(null);
     try {
-      const res = await fetch(`/api/productions/${s.id}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/productions/${s.id}`, { method: "DELETE" });
+      if (res.status === 401) return; // dialog PIN dibatalkan
       if (!res.ok) throw new Error();
       setSessions((prev) => prev.filter((x) => x.id !== s.id));
       setMessage({ ok: true, text: `Sesi ${timeLabel(s.createdAt)} dihapus.` });
