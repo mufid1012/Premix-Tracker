@@ -21,88 +21,59 @@ interface TrendChartProps {
   data: TrendDataPoint[];
 }
 
+// Recharts butuh nilai warna langsung; sama dengan token di globals.css.
+const LINE = "#828c97";
+const INK_SOFT = "#565e67";
+const ACCENT = "#0067df";
+
 export default function TrendChart({ data }: TrendChartProps) {
   return (
-    <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-[20px] shadow-soft-press">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-[20px]">
-        <h3 className="text-[20px] font-bold text-on-surface">
-          Tren Penggunaan Bahan
-        </h3>
-        <button className="text-on-surface-variant hover:text-on-surface p-2 rounded-full transition-colors">
-          <span className="material-symbols-outlined">more_vert</span>
-        </button>
-      </div>
-
-      {/* Chart */}
+    <div className="bg-white p-4 md:p-6">
       <div className="h-64 w-full min-h-[200px]">
         <ResponsiveContainer width="100%" height="100%" minWidth={0}>
           <BarChart data={data} barCategoryGap="20%">
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="rgba(194, 201, 187, 0.3)"
-              vertical={false}
-            />
+            <CartesianGrid stroke={LINE} strokeOpacity={0.35} vertical={false} />
             <XAxis
               dataKey="day"
-              tick={{
-                fontSize: 12,
-                fontWeight: 700,
-                fill: "#42493e",
-              }}
+              tick={{ fontSize: 12, fill: INK_SOFT, fontFamily: "var(--font-jetbrains)" }}
               tickLine={false}
-              axisLine={false}
+              axisLine={{ stroke: LINE }}
             />
             <YAxis
-              tick={{
-                fontSize: 11,
-                fill: "#72796e",
-              }}
+              tick={{ fontSize: 12, fill: INK_SOFT }}
               tickLine={false}
               axisLine={false}
               width={35}
-              tickFormatter={(v) => `${v}`}
             />
             <Tooltip
               contentStyle={{
                 backgroundColor: "#ffffff",
-                border: "1px solid #c2c9bb",
-                borderRadius: "8px",
-                boxShadow: "0 4px 12px rgba(74, 50, 31, 0.1)",
+                border: `1px solid ${LINE}`,
+                borderRadius: 0,
                 fontSize: "14px",
-                fontWeight: 700,
               }}
-              labelStyle={{ color: "#1c1c19", fontWeight: 700 }}
-              formatter={(value: any) => [`${value} Kg`, "Bahan Terpakai"]}
-              cursor={{ fill: "rgba(45, 90, 39, 0.05)" }}
+              labelStyle={{ color: "#000", fontWeight: 600 }}
+              formatter={(value) => [`${value} Kg`, "Bahan terpakai"]}
+              cursor={{ fill: "rgba(130, 140, 151, 0.12)" }}
             />
-            <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={48}>
+            <Bar dataKey="value" maxBarSize={48}>
               {data.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={entry.isPeak ? "#7c5800" : "#2d5a27"}
-                  opacity={0.85}
-                />
+                <Cell key={`cell-${index}`} fill={entry.isPeak ? ACCENT : LINE} />
               ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Legend */}
-      <div className="mt-[20px] flex items-center justify-center gap-[20px]">
-        <div className="flex items-center gap-[4px]">
-          <div className="w-3 h-3 bg-primary-container rounded-full" />
-          <span className="text-label-bold font-[700] text-[12px] text-on-surface-variant">
-            Normal
-          </span>
-        </div>
-        <div className="flex items-center gap-[4px]">
-          <div className="w-3 h-3 bg-secondary rounded-full" />
-          <span className="text-label-bold font-[700] text-[12px] text-on-surface-variant">
-            Puncak
-          </span>
-        </div>
+      <div className="mt-4 flex items-center justify-center gap-6 label-mono">
+        <span className="flex items-center gap-2">
+          <span aria-hidden="true" className="w-3 h-3 bg-line" />
+          Normal
+        </span>
+        <span className="flex items-center gap-2">
+          <span aria-hidden="true" className="w-3 h-3 bg-accent" />
+          Puncak
+        </span>
       </div>
     </div>
   );

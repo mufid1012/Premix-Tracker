@@ -1,79 +1,42 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { navItems } from "./BottomNavBar";
 
-interface TopAppBarProps {
-  title?: string;
-  showBack?: boolean;
-}
-
-export default function TopAppBar({
-  title = "Produksi Dapur",
-  showBack = false,
-}: TopAppBarProps) {
-  const router = useRouter();
+export default function TopAppBar() {
+  const pathname = usePathname();
 
   return (
-    <header
-      className="
-        bg-stone-50 sticky top-0 z-40
-        border-b-2 border-stone-200
-        shadow-[0_2px_4px_rgba(74,50,31,0.05)]
-        flex items-center justify-between
-        px-6 h-16 w-full
-      "
-    >
-      {/* Left: Back button or spacer */}
-      {showBack ? (
-        <button
-          onClick={() => router.back()}
-          aria-label="Kembali"
-          className="
-            flex items-center justify-center
-            w-[56px] h-[56px]
-            text-emerald-800
-            rounded-full
-            hover:bg-stone-200/50
-            active:scale-95 active:bg-stone-200
-            transition-colors duration-150
-          "
+    <header className="sticky top-0 z-40 bg-paper border-b border-line">
+      <div className="frame h-16 flex items-stretch justify-between">
+        <Link
+          href="/"
+          className="flex items-center px-4 md:px-6 font-display text-[20px] uppercase tracking-[0.02em] hover:text-ink-soft"
         >
-          <span
-            className="material-symbols-outlined"
-            style={{ fontVariationSettings: "'FILL' 0" }}
-          >
-            arrow_back
-          </span>
-        </button>
-      ) : (
-        <div className="w-[56px]" />
-      )}
+          Produksi Dapur
+        </Link>
 
-      {/* Center: Title */}
-      <h1 className="text-xl font-black text-emerald-900 text-center flex-1">
-        {title}
-      </h1>
-
-      {/* Right: Profile */}
-      <button
-        aria-label="Profile"
-        className="
-          flex items-center justify-center
-          w-[56px] h-[56px]
-          text-emerald-800
-          rounded-full
-          hover:bg-stone-200/50
-          active:scale-95 active:bg-stone-200
-          transition-colors duration-150
-        "
-      >
-        <span
-          className="material-symbols-outlined"
-          style={{ fontVariationSettings: "'FILL' 0" }}
-        >
-          account_circle
-        </span>
-      </button>
+        <nav aria-label="Navigasi utama" className="hidden md:flex">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                className={`flex items-center px-5 border-l border-line font-mono text-[13px] uppercase transition-colors ${
+                  isActive
+                    ? "bg-band text-white"
+                    : "text-ink hover:bg-paper active:bg-white"
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
     </header>
   );
 }

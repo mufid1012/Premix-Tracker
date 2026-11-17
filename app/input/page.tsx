@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import ProductionCard from "@/components/production/ProductionCard";
 import SessionFooter from "@/components/production/SessionFooter";
+import CategoryFilter from "@/components/recipe/CategoryFilter";
+import SearchField from "@/components/recipe/SearchField";
 
 interface Category {
   id: number;
@@ -12,9 +14,6 @@ interface Category {
 interface Recipe {
   id: number;
   name: string;
-  standardBatchKg: number;
-  unit: string;
-  isUrgent: boolean;
   category: Category;
 }
 
@@ -27,7 +26,7 @@ export default function InputPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
 
   const fetchRecipes = useCallback(async () => {
     const params = new URLSearchParams();
@@ -72,10 +71,12 @@ export default function InputPage() {
     }));
   };
 
-  const totalBatch = Object.values(batchCounts).reduce(
-    (sum, v) => sum + v,
-    0
-  );
+  const totalBatch = Object.values(batchCounts).reduce((sum, v) => sum + v, 0);
+
+  const showToast = (ok: boolean, text: string) => {
+    setToast({ ok, text });
+    setTimeout(() => setToast(null), ok ? 5000 : 4000);
+  };
 
   const handleFinishSession = async () => {
     const entries = Object.entries(batchCounts)
@@ -99,131 +100,105 @@ export default function InputPage() {
       // Respons 4xx/5xx juga harus memunculkan pesan gagal (lihat catch)
       if (!res.ok) throw new Error();
       const result = await res.json();
-      setSuccessMessage(
-        `✅ Sesi berhasil disimpan! ${result.totalBatch} batch, ${result.totalBahanKg} kg bahan terpakai.`
+      showToast(
+        true,
+        `Sesi tersimpan: ${result.totalBatch} resep, ${result.totalBahanKg} kg bahan terpakai.`
       );
       setBatchCounts({});
-      setTimeout(() => setSuccessMessage(null), 5000);
     } catch {
-      setSuccessMessage("❌ Gagal menyimpan sesi. Coba lagi.");
-      setTimeout(() => setSuccessMessage(null), 3000);
+      showToast(false, "Gagal menyimpan sesi. Coba lagi.");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="px-[20px] md:px-[32px] max-w-7xl mx-auto pb-[140px] md:pb-[120px]">
-      {/* Search and Category Tabs — sticky below TopAppBar */}
-      <section className="sticky top-[64px] bg-background z-30 py-4 -mx-[20px] px-[20px] md:mx-0 md:px-0 space-y-4">
-        {/* Search Bar */}
-        <div className="relative w-full">
-          <span className="material-symbols-outlined absolute left-[12px] top-1/2 -translate-y-1/2 text-outline">
-            search
-          </span>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari resep..."
-            className="w-full h-[56px] pl-[44px] pr-[12px] rounded-lg bg-surface-container-high border-2 border-surface-container-high focus:border-secondary-container focus:bg-surface-container-lowest focus:ring-0 outline-none text-body-md font-[400] transition-all duration-200 shadow-[inset_0_2px_4px_rgba(74,50,31,0.02)]"
-          />
-        </div>
-
-        {/* Category Tabs */}
-        <div className="flex overflow-x-auto no-scrollbar gap-[12px] pb-2">
-          <button
-            onClick={() => setActiveCategory("all")}
-            className={`
-              shrink-0 px-6 py-3 rounded-full font-[700] text-label-bold
-              transition-transform active:scale-95
-              ${
-                activeCategory === "all"
-                  ? "bg-primary text-on-primary shadow-soft-press"
-                  : "bg-surface-container text-on-surface-variant shadow-soft-press border-2 border-transparent hover:border-outline-variant"
-              }
-            `}
-          >
-            Semua
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(String(cat.id))}
-              className={`
-                shrink-0 px-6 py-3 rounded-full font-[700] text-label-bold
-                transition-transform active:scale-95
-                ${
-                  activeCategory === String(cat.id)
-                    ? "bg-primary text-on-primary shadow-soft-press"
-                    : "bg-surface-container text-on-surface-variant shadow-soft-press border-2 border-transparent hover:border-outline-variant"
-                }
-              `}
-            >
-              {cat.name}
-            </button>
-          ))}
+    <>
+      <section className="row">
+        <div className="frame px-4 py-8 md:py-12 text-center">
+          <h1 className="h-display">Input Produksi</h1>
+          <p className="mt-3 text-ink-soft">
+            Tambah jumlah tiap resep yang selesai diolah, lalu simpan sesinya.
+          </p>
         </div>
       </section>
 
-      {/* Success Toast */}
-      {successMessage && (
-        <div className="fixed top-20 left-0 right-0 mx-[20px] z-[70] animate-slide-up">
-          <div className="bg-primary-container text-on-primary-container rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.25)] px-[20px] py-[16px] md:max-w-sm md:mx-auto">
-            <p className="text-body-md font-[700] text-center">
-              {successMessage}
-            </p>
-          </div>
+      <section className="row sticky top-16 z-30 bg-paper">
+        <div className="frame p-4 space-y-3">
+          <SearchField id="cari-resep-input" value={searchQuery} onChange={setSearchQuery} />
+          <CategoryFilter
+            categories={categories}
+            activeId={activeCategory}
+            onSelect={setActiveCategory}
+          />
+        </div>
+      </section>
+
+      {toast && (
+        <div
+          role={toast.ok ? "status" : "alert"}
+          className={`fixed top-20 inset-x-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[28rem] z-[70] animate-slide-up px-5 py-4 text-center font-semibold ${
+            toast.ok ? "bg-band text-white" : "bg-danger-soft text-danger border border-danger"
+          }`}
+        >
+          {toast.text}
         </div>
       )}
 
-      {/* Loading */}
       {loading && (
-        <div className="text-center py-[48px]">
-          <div className="inline-block w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="mt-[12px] text-body-md text-on-surface-variant">
+        <section className="row">
+          <p role="status" className="frame px-4 py-12 text-center label-mono">
             Memuat resep...
           </p>
-        </div>
-      )}
-
-      {/* Recipe Cards Grid */}
-      {!loading && (
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[20px] pt-[12px] stagger-children">
-          {recipes.map((recipe) => (
-            <ProductionCard
-              key={recipe.id}
-              id={recipe.id}
-              name={recipe.name}
-              batchCount={batchCounts[recipe.id] || 0}
-              onIncrement={handleIncrement}
-              onDecrement={handleDecrement}
-            />
-          ))}
         </section>
       )}
 
-      {/* Empty State */}
-      {!loading && recipes.length === 0 && (
-        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-[32px] shadow-soft-press text-center">
-          <span className="material-symbols-outlined text-[48px] text-outline mb-[12px]">
-            restaurant
-          </span>
-          <p className="text-body-lg font-[500] text-on-surface">
-            {loadError ? "Gagal memuat resep. Coba lagi." : "Belum ada resep"}
-          </p>
-          <p className="text-body-md text-on-surface-variant">
-            Buat resep terlebih dahulu di halaman Manajemen Resep.
-          </p>
-        </div>
+      {!loading && recipes.length > 0 && (
+        <section className="row" aria-label="Daftar resep">
+          <div className="frame ruled-grid ruled-grid-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {recipes.map((recipe) => (
+              <ProductionCard
+                key={recipe.id}
+                id={recipe.id}
+                name={recipe.name}
+                batchCount={batchCounts[recipe.id] || 0}
+                onIncrement={handleIncrement}
+                onDecrement={handleDecrement}
+              />
+            ))}
+          </div>
+        </section>
       )}
 
-      {/* Session Footer */}
+      {!loading && recipes.length === 0 && (
+        <section className="row">
+          <div className="frame px-4 py-12 text-center">
+            {loadError ? (
+              <p role="alert" className="text-danger">
+                Gagal memuat resep. Muat ulang halaman untuk mencoba lagi.
+              </p>
+            ) : searchQuery.trim() || activeCategory !== "all" ? (
+              <p className="text-ink-soft">Tidak ada resep yang cocok dengan filter ini.</p>
+            ) : (
+              <>
+                <p className="text-[18px] font-semibold">Belum ada resep</p>
+                <p className="mt-1 text-ink-soft">
+                  Buat resep terlebih dahulu di halaman Resep.
+                </p>
+              </>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Ruang agar footer sesi tidak menutupi kartu terakhir */}
+      {totalBatch > 0 && <div aria-hidden="true" className="frame h-24" />}
+
       <SessionFooter
         totalBatch={totalBatch}
         onFinishSession={handleFinishSession}
         submitting={submitting}
       />
-    </div>
+    </>
   );
 }

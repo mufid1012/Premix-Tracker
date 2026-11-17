@@ -1,43 +1,34 @@
 "use client";
 
+type Period = "harian" | "mingguan" | "bulanan";
+
 interface PeriodSelectorProps {
-  period: "harian" | "mingguan" | "bulanan";
-  onChange: (period: "harian" | "mingguan" | "bulanan") => void;
+  period: Period;
+  onChange: (period: Period) => void;
 }
 
-export default function PeriodSelector({ period, onChange }: PeriodSelectorProps) {
-  const options = [
-    { id: "harian", label: "Harian" },
-    { id: "mingguan", label: "Mingguan" },
-    { id: "bulanan", label: "Bulanan" },
-  ] as const;
+const OPTIONS: Array<{ id: Period; label: string }> = [
+  { id: "harian", label: "Harian" },
+  { id: "mingguan", label: "Mingguan" },
+  { id: "bulanan", label: "Bulanan" },
+];
 
+export default function PeriodSelector({ period, onChange }: PeriodSelectorProps) {
   return (
-    <section className="space-y-3">
-      <p className="font-label-bold text-label-bold text-on-surface-variant">
-        Pilih Periode Laporan
-      </p>
-      <div className="bg-surface-container-high p-1 rounded-xl flex gap-1">
-        {options.map((opt) => {
-          const isActive = period === opt.id;
-          return (
-            <button
-              key={opt.id}
-              onClick={() => onChange(opt.id)}
-              className={`
-                flex-1 py-2 rounded-lg font-label-bold transition-all
-                ${
-                  isActive
-                    ? "bg-surface-container-lowest text-primary shadow-sm"
-                    : "text-on-surface-variant hover:bg-surface-container-highest"
-                }
-              `}
-            >
-              {opt.label}
-            </button>
-          );
-        })}
-      </div>
-    </section>
+    <div role="group" aria-label="Periode laporan" className="grid grid-cols-3 bg-white">
+      {OPTIONS.map((opt) => (
+        <button
+          key={opt.id}
+          type="button"
+          onClick={() => onChange(opt.id)}
+          aria-pressed={period === opt.id}
+          className={`min-h-14 font-mono text-[13px] uppercase border-l border-line first:border-l-0 transition-colors ${
+            period === opt.id ? "bg-band text-white" : "text-ink hover:bg-paper active:bg-panel"
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import PeriodSelector from "@/components/report/PeriodSelector";
-import StatCard from "@/components/report/StatCard";
+import MetricCard from "@/components/dashboard/MetricCard";
 import TopProgressBar from "@/components/report/TopProgressBar";
 import SimpleBarChart from "@/components/report/SimpleBarChart";
 
@@ -38,9 +38,8 @@ export default function LaporanPage() {
   const handleDownload = () => {
     if (!data) return;
 
-    // Build CSV content
     const lines = [];
-    lines.push(`Laporan Produksi - Periode: ${period.toUpperCase()}`);
+    lines.push(`Laporan Produksi - Periode: ${period.toUpperCase()} (${data.dateRange})`);
     lines.push("");
 
     lines.push("RINGKASAN");
@@ -62,8 +61,7 @@ export default function LaporanPage() {
     lines.push("Periode,Jumlah (Resep)");
     data.trendData.forEach((t) => lines.push(`${t.label},${t.value}`));
 
-    const csvContent = lines.join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
@@ -71,90 +69,80 @@ export default function LaporanPage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="p-[20px] md:p-[32px] max-w-4xl mx-auto space-y-[24px] pb-[100px]">
-      {/* Header */}
-      <div className="mb-[32px] pt-[12px] md:pt-[32px]">
-        <h1 className="text-display-lg font-[800] tracking-[-0.02em] text-on-surface mb-[4px]">
-          Laporan Produksi
-        </h1>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <p className="text-body-md font-[400] text-on-surface-variant">
-            Ringkasan performa dan pemakaian bahan.
-          </p>
+    <>
+      <section className="row">
+        <div className="frame px-4 py-8 md:py-12 text-center">
+          <h1 className="h-display">Laporan Produksi</h1>
+          <p className="mt-3 text-ink-soft">Ringkasan produksi dan pemakaian bahan.</p>
           {data && (
-            <p className="text-label-bold font-[700] text-[#FFFFFF] bg-[#6B8E23] px-3 py-1 rounded-full w-fit">
-              <span className="material-symbols-outlined text-[14px] align-middle mr-1">calendar_today</span>
+            <p className="label-mono mt-4 flex items-center justify-center gap-1 text-ink">
+              <span aria-hidden="true" className="material-symbols-outlined text-[16px]">
+                calendar_today
+              </span>
               {data.dateRange}
             </p>
           )}
         </div>
-      </div>
+      </section>
 
-      <PeriodSelector period={period} onChange={setPeriod} />
+      <section className="row">
+        <div className="frame">
+          <h2 className="band">Periode</h2>
+          <PeriodSelector period={period} onChange={setPeriod} />
+        </div>
+      </section>
 
       {loading ? (
-        <div className="text-center py-[48px]">
-          <div className="inline-block w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="mt-[12px] text-body-md text-on-surface-variant">
+        <section className="row">
+          <p role="status" className="frame px-4 py-12 text-center label-mono">
             Memuat laporan...
           </p>
-        </div>
+        </section>
       ) : data ? (
-        <div className="animate-slide-up space-y-[24px]">
-          {/* Summary Cards */}
-          <div className="grid grid-cols-2 gap-[16px]">
-            <StatCard
-              title="Adonan Selesai"
-              value={data.summary.totalBatch}
-              unit="Resep"
-              icon="restaurant_menu"
-            />
-            <StatCard
-              title="Bahan Terpakai"
-              value={data.summary.totalBahanKg}
-              unit="kg"
-              icon="inventory_2"
-            />
-          </div>
+        <>
+          <section className="row" aria-label="Ringkasan">
+            <div className="frame grid grid-cols-2 gap-px bg-line">
+              <MetricCard title="Adonan selesai" value={data.summary.totalBatch} unit="resep" />
+              <MetricCard title="Bahan terpakai" value={data.summary.totalBahanKg} unit="kg" />
+            </div>
+          </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-[24px]">
-            {/* Top Resep */}
-            <TopProgressBar
-              title="Top Resep Terbanyak"
-              icon="bar_chart"
-              items={data.topRecipes}
-            />
+          <section className="row">
+            <div className="frame grid grid-cols-1 md:grid-cols-2 gap-px bg-line">
+              <TopProgressBar title="Resep terbanyak" items={data.topRecipes} />
+              <TopProgressBar title="Bahan terpakai" items={data.topIngredients} />
+            </div>
+          </section>
 
-            {/* Top Bahan */}
-            <TopProgressBar
-              title="Top Bahan Terpakai"
-              icon="inventory_2"
-              items={data.topIngredients}
-            />
-          </div>
+          <section className="row">
+            <div className="frame">
+              <h2 className="band">Tren produksi (resep)</h2>
+              <SimpleBarChart data={data.trendData} />
+            </div>
+          </section>
 
-          {/* Tren Produksi */}
-          <div className="md:w-1/2 md:mx-auto">
-            <SimpleBarChart title="Tren Produksi" data={data.trendData} />
-          </div>
-
-          {/* Download Button */}
-          <button
-            onClick={handleDownload}
-            className="w-full bg-primary text-on-primary font-[700] text-headline-md py-[16px] rounded-xl flex items-center justify-center gap-[12px] active:scale-95 transition-all shadow-soft-press hover:bg-primary-container hover:text-on-primary-container"
-          >
-            <span className="material-symbols-outlined">download</span>
-            Unduh Laporan (CSV)
-          </button>
-        </div>
+          <section className="row">
+            <div className="frame p-4">
+              <button type="button" onClick={handleDownload} className="btn btn-dark w-full min-h-14">
+                <span aria-hidden="true" className="material-symbols-outlined">
+                  download
+                </span>
+                Unduh Laporan (CSV)
+              </button>
+            </div>
+          </section>
+        </>
       ) : (
-        <div className="text-center py-8 text-on-surface-variant">
-          Gagal memuat laporan.
-        </div>
+        <section className="row">
+          <p role="alert" className="frame px-4 py-12 text-center text-danger">
+            Gagal memuat laporan. Muat ulang halaman untuk mencoba lagi.
+          </p>
+        </section>
       )}
-    </div>
+    </>
   );
 }

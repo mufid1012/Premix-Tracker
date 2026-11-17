@@ -101,7 +101,6 @@ export async function GET() {
       totalBatchToday,
       batchTrend,
       totalBahanToday: totalBahanKg,
-      bahanTrend: batchTrend, // simplified: use same trend
       weeklyTrend,
     });
   } catch (error) {

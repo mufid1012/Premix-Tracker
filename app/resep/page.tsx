@@ -2,10 +2,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import CategoryFilter from "@/components/recipe/CategoryFilter";
+import SearchField from "@/components/recipe/SearchField";
 import RecipeCard from "@/components/recipe/RecipeCard";
-import RecipeFormModal, {
-  type RecipeFormData,
-} from "@/components/recipe/RecipeFormModal";
+import RecipeFormModal, { type RecipeFormData } from "@/components/recipe/RecipeFormModal";
 import CategoryManagerModal from "@/components/recipe/CategoryManagerModal";
 
 interface Category {
@@ -141,120 +140,99 @@ export default function ResepPage() {
   };
 
   return (
-    <div className="p-[20px] max-w-5xl mx-auto">
-      {/* Page Title & Search */}
-      <div className="mb-[32px] flex flex-col md:flex-row md:items-center justify-between gap-[20px] pt-[32px]">
-        <div>
-          <h1 className="text-display-lg font-[800] tracking-[-0.02em] text-on-surface mb-[4px]">
-            Manajemen Resep
-          </h1>
-          <p className="text-body-md font-[400] text-on-surface-variant">
-            Panduan proporsi standar untuk 1 resep produksi.
+    <>
+      <section className="row">
+        <div className="frame px-4 py-8 md:py-12 text-center">
+          <h1 className="h-display">Manajemen Resep</h1>
+          <p className="mt-3 text-ink-soft">
+            Proporsi standar bahan untuk 1 resep produksi.
           </p>
-        </div>
-
-        {/* Search + Add */}
-        <div className="flex gap-[12px] w-full md:w-auto">
-          <div className="relative flex-1 md:flex-none">
-            <span className="material-symbols-outlined absolute left-[12px] top-1/2 -translate-y-1/2 text-outline">
-              search
-            </span>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari resep..."
-              className="w-full md:w-80 h-[56px] pl-[44px] pr-[12px] rounded-lg bg-surface-container-high border-2 border-surface-container-high focus:border-secondary-container focus:bg-surface-container-lowest focus:ring-0 outline-none text-body-md font-[400] transition-all duration-200 shadow-[inset_0_2px_4px_rgba(74,50,31,0.02)]"
-            />
-          </div>
-          <button
-            onClick={() => setShowCategoryModal(true)}
-            className="shrink-0 w-[56px] h-[56px] rounded-lg border-2 border-outline-variant text-on-surface-variant hover:bg-surface-container-high shadow-[0_2px_4px_rgba(74,50,31,0.02)] active:scale-95 transition-all flex items-center justify-center"
-            title="Kelola Kategori"
-          >
-            <span className="material-symbols-outlined">category</span>
-          </button>
-          <button
-            onClick={() => setShowModal(true)}
-            className="shrink-0 w-[56px] h-[56px] rounded-lg bg-primary text-on-primary shadow-soft-press active:scale-95 transition-transform flex items-center justify-center"
-            title="Tambah Resep"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontVariationSettings: "'FILL' 1" }}
+          <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
+            <button type="button" onClick={() => setShowModal(true)} className="btn btn-dark">
+              <span aria-hidden="true" className="material-symbols-outlined">
+                add
+              </span>
+              Tambah Resep
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowCategoryModal(true)}
+              className="btn btn-line"
             >
-              add
-            </span>
-          </button>
+              <span aria-hidden="true" className="material-symbols-outlined">
+                category
+              </span>
+              Kelola Kategori
+            </button>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Category Filters */}
-      <div className="mb-[24px]">
-        <div className="w-full overflow-x-auto pb-2 hide-scrollbar">
+      <section className="row">
+        <div className="frame p-4 space-y-3">
+          <SearchField id="cari-resep" value={searchQuery} onChange={setSearchQuery} />
           <CategoryFilter
             categories={categories}
             activeId={activeCategory}
             onSelect={setActiveCategory}
           />
         </div>
-      </div>
+      </section>
 
-      {/* Loading */}
       {loading && (
-        <div className="text-center py-[48px]">
-          <div className="inline-block w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="mt-[12px] text-body-md text-on-surface-variant">
+        <section className="row">
+          <p role="status" className="frame px-4 py-12 text-center label-mono">
             Memuat resep...
           </p>
-        </div>
+        </section>
       )}
 
-      {/* Recipe List */}
-      {!loading && (
-        <div className="flex flex-col gap-[20px] stagger-children">
-          {recipes.map((recipe, idx) => (
-            <RecipeCard
-              key={recipe.id}
-              id={recipe.id}
-              name={recipe.name}
-              categoryName={recipe.category.name}
-              categoryIcon={recipe.category.icon}
-              description={recipe.description}
-              ingredients={recipe.ingredients}
-              variant={idx % 2 === 0 ? "primary" : "secondary"}
-              onEdit={() => setEditRecipeData(recipe)}
-            />
-          ))}
-        </div>
+      {!loading && recipes.length > 0 && (
+        <section className="row" aria-label="Daftar resep">
+          <div className="frame ruled-grid">
+            {recipes.map((recipe) => (
+              <RecipeCard
+                key={recipe.id}
+                name={recipe.name}
+                categoryName={recipe.category.name}
+                categoryIcon={recipe.category.icon}
+                description={recipe.description}
+                ingredients={recipe.ingredients}
+                onEdit={() => setEditRecipeData(recipe)}
+              />
+            ))}
+          </div>
+        </section>
       )}
 
-      {/* Empty State */}
       {!loading && recipes.length === 0 && (
-        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-[32px] shadow-soft-press text-center">
-          <span
-            className="material-symbols-outlined text-[48px] text-outline mb-[12px]"
-            style={{ fontVariationSettings: "'FILL' 0" }}
-          >
-            restaurant_menu
-          </span>
-          <p className="text-body-lg font-[500] text-on-surface mb-[4px]">
-            {loadError ? "Gagal memuat resep. Coba lagi." : "Belum ada resep"}
-          </p>
-          <p className="text-body-md text-on-surface-variant mb-[20px]">
-            Buat resep pertama untuk memulai pencatatan produksi.
-          </p>
-          <button
-            onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-[8px] bg-primary text-on-primary font-[700] text-label-bold px-[24px] py-[12px] rounded-lg active-press shadow-soft-press"
-          >
-            <span className="material-symbols-outlined">add</span>
-            Buat Resep
-          </button>
-        </div>
+        <section className="row">
+          <div className="frame px-4 py-12 text-center">
+            {loadError ? (
+              <p role="alert" className="text-danger">
+                Gagal memuat resep. Muat ulang halaman untuk mencoba lagi.
+              </p>
+            ) : searchQuery.trim() || activeCategory !== "all" ? (
+              <p className="text-ink-soft">Tidak ada resep yang cocok dengan filter ini.</p>
+            ) : (
+              <>
+                <p className="text-[18px] font-semibold">Belum ada resep</p>
+                <p className="mt-1 text-ink-soft">
+                  Buat resep pertama untuk mulai mencatat produksi.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(true)}
+                  className="btn btn-dark mt-6"
+                >
+                  Buat Resep Pertama
+                </button>
+              </>
+            )}
+          </div>
+        </section>
       )}
 
-      {/* Create Recipe Modal */}
       <RecipeFormModal
         categories={categories}
         isOpen={showModal}
@@ -262,7 +240,6 @@ export default function ResepPage() {
         onSubmit={handleCreateRecipe}
       />
 
-      {/* Edit Recipe Modal */}
       {editRecipeData && (
         <RecipeFormModal
           categories={categories}
@@ -286,7 +263,6 @@ export default function ResepPage() {
         />
       )}
 
-      {/* Category Manager Modal */}
       <CategoryManagerModal
         categories={categories}
         isOpen={showCategoryModal}
@@ -294,6 +270,6 @@ export default function ResepPage() {
         onAddCategory={handleAddCategory}
         onDeleteCategory={handleDeleteCategory}
       />
-    </div>
+    </>
   );
 }
