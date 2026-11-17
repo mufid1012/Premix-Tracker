@@ -4,9 +4,11 @@ interface MetricCardProps {
   unit: string;
   /** Perubahan dalam persen dibanding kemarin. Kosongkan bila tidak ada data pembanding yang nyata. */
   trend?: number;
+  /** Keterangan kecil di bawah angka, misalnya dasar perhitungannya */
+  note?: string;
 }
 
-export default function MetricCard({ title, value, unit, trend }: MetricCardProps) {
+export default function MetricCard({ title, value, unit, trend, note }: MetricCardProps) {
   return (
     <div className="bg-white p-5 md:p-8">
       <p className="label-mono">{title}</p>
@@ -23,6 +25,7 @@ export default function MetricCard({ title, value, unit, trend }: MetricCardProp
           {trend}% dari kemarin
         </p>
       )}
+      {note && <p className="mt-3 text-[13px] text-ink-soft">{note}</p>}
     </div>
   );
 }

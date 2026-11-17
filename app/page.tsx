@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import MetricCard from "@/components/dashboard/MetricCard";
 import TrendChart from "@/components/dashboard/TrendChart";
+import { SPOON_ESTIMATE_NOTE } from "@/lib/units";
 
 interface DashboardData {
   totalBatchToday: number;
@@ -77,6 +78,7 @@ export default function DashboardPage() {
                 title="Bahan baku terpakai"
                 value={data.totalBahanToday}
                 unit="kg"
+                note={SPOON_ESTIMATE_NOTE}
               />
             </div>
           </section>

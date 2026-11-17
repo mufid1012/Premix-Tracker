@@ -9,5 +9,7 @@ test("normalizeToKg", () => {
   assert.equal(normalizeToKg(2, "l"), 2);
   assert.equal(normalizeToKg(500, "gr"), 0.5);
   assert.equal(normalizeToKg(500, "ml"), 0.5);
-  assert.equal(normalizeToKg(1, "bks"), 0.001);
+  assert.equal(normalizeToKg(2, "sdt"), 0.01);
+  assert.equal(normalizeToKg(2, "sdm"), 0.03);
+  assert.equal(normalizeToKg(1, "SDM"), 0.015);
 });

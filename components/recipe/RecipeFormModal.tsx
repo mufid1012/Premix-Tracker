@@ -32,7 +32,8 @@ const UNITS = [
   { value: "gr", label: "gr" },
   { value: "ml", label: "ml" },
   { value: "Liter", label: "L" },
-  { value: "bks", label: "bks" },
+  { value: "sdt", label: "sdt" },
+  { value: "sdm", label: "sdm" },
 ];
 
 export default function RecipeFormModal({

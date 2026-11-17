@@ -5,6 +5,7 @@ import PeriodSelector from "@/components/report/PeriodSelector";
 import MetricCard from "@/components/dashboard/MetricCard";
 import TopProgressBar from "@/components/report/TopProgressBar";
 import SimpleBarChart from "@/components/report/SimpleBarChart";
+import { SPOON_ESTIMATE_NOTE } from "@/lib/units";
 
 type Period = "harian" | "mingguan" | "bulanan";
 
@@ -107,7 +108,12 @@ export default function LaporanPage() {
           <section className="row" aria-label="Ringkasan">
             <div className="frame grid grid-cols-2 gap-px bg-line">
               <MetricCard title="Adonan selesai" value={data.summary.totalBatch} unit="resep" />
-              <MetricCard title="Bahan terpakai" value={data.summary.totalBahanKg} unit="kg" />
+              <MetricCard
+                title="Bahan terpakai"
+                value={data.summary.totalBahanKg}
+                unit="kg"
+                note={SPOON_ESTIMATE_NOTE}
+              />
             </div>
           </section>
 
