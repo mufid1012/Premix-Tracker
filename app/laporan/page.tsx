@@ -22,19 +22,28 @@ interface ReportData {
 
 export default function LaporanPage() {
   const [period, setPeriod] = useState<Period>("mingguan");
+  // 0 = periode berjalan, 1 = sebelumnya, dst.
+  const [offset, setOffset] = useState(0);
   const [data, setData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const changePeriod = (p: Period) => {
+    setPeriod(p);
+    setOffset(0);
+  };
+
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/reports?period=${period}`)
+    fetch(`/api/reports?period=${period}&offset=${offset}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
         setData(json);
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [period]);
+  }, [period, offset]);
+
+  const periodNoun = { harian: "hari", mingguan: "minggu", bulanan: "bulan" }[period];
 
   const handleDownload = () => {
     if (!data) return;
@@ -66,7 +75,10 @@ export default function LaporanPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `laporan_produksi_${period}.csv`);
+    link.setAttribute(
+      "download",
+      `laporan_produksi_${period}_${data.dateRange.replace(/[^0-9A-Za-z]+/g, "-")}.csv`
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -79,21 +91,46 @@ export default function LaporanPage() {
         <div className="frame px-4 py-8 md:py-12 text-center">
           <h1 className="h-display">Laporan Produksi</h1>
           <p className="mt-3 text-ink-soft">Ringkasan produksi dan pemakaian bahan.</p>
-          {data && (
-            <p className="label-mono mt-4 flex items-center justify-center gap-1 text-ink">
-              <span aria-hidden="true" className="material-symbols-outlined text-[16px]">
-                calendar_today
-              </span>
-              {data.dateRange}
-            </p>
-          )}
         </div>
       </section>
 
       <section className="row">
         <div className="frame">
           <h2 className="band">Periode</h2>
-          <PeriodSelector period={period} onChange={setPeriod} />
+          <PeriodSelector period={period} onChange={changePeriod} />
+          <div className="flex items-stretch border-t border-line bg-white">
+            <button
+              type="button"
+              onClick={() => setOffset((o) => o + 1)}
+              disabled={loading}
+              aria-label={`${periodNoun} sebelumnya`}
+              className="btn btn-icon h-14 w-14 border-r border-line hover:bg-paper"
+            >
+              <span aria-hidden="true" className="material-symbols-outlined">
+                chevron_left
+              </span>
+            </button>
+            <p
+              aria-live="polite"
+              className="flex-1 flex flex-col items-center justify-center px-2 text-center"
+            >
+              <span className="font-semibold">{data?.dateRange ?? "..."}</span>
+              <span className="label-mono text-[11px]">
+                {offset === 0 ? `${periodNoun} ini` : `${offset} ${periodNoun} lalu`}
+              </span>
+            </p>
+            <button
+              type="button"
+              onClick={() => setOffset((o) => Math.max(o - 1, 0))}
+              disabled={loading || offset === 0}
+              aria-label={`${periodNoun} berikutnya`}
+              className="btn btn-icon h-14 w-14 border-l border-line hover:bg-paper"
+            >
+              <span aria-hidden="true" className="material-symbols-outlined">
+                chevron_right
+              </span>
+            </button>
+          </div>
         </div>
       </section>
 

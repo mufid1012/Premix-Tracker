@@ -1,35 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { normalizeToKg } from "@/lib/units";
+import { periodRange, type Period } from "@/lib/reportPeriod";
 
+const PERIODS: Period[] = ["harian", "mingguan", "bulanan"];
+const MAX_OFFSET = 520; // sekitar 10 tahun mingguan; cukup untuk menelusuri ke belakang
+
+// GET /api/reports?period=harian|mingguan|bulanan&offset=0 (0 = periode berjalan)
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const period = searchParams.get("period") || "harian"; // harian, mingguan, bulanan
+    const { searchParams } = request.nextUrl;
+    const periodParam = searchParams.get("period") as Period;
+    const period = PERIODS.includes(periodParam) ? periodParam : "harian";
+    const offsetParam = Number(searchParams.get("offset") ?? 0);
+    const offset = Number.isInteger(offsetParam) ? Math.min(Math.max(offsetParam, 0), MAX_OFFSET) : 0;
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const range = periodRange(period, offset);
+    const trendStart = range.buckets[0].start;
+    const trendEnd = range.buckets[range.buckets.length - 1].end;
 
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    let startDate = new Date(today);
-    let endDate = new Date(tomorrow);
-
-    if (period === "mingguan") {
-      startDate.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
-      // If we want last 7 days including today instead of calendar week:
-      startDate = new Date(today);
-      startDate.setDate(today.getDate() - 6);
-    } else if (period === "bulanan") {
-      startDate = new Date(today.getFullYear(), today.getMonth(), 1); // Start of month
-      endDate = new Date(today.getFullYear(), today.getMonth() + 1, 1); // Start of next month
-    }
-
-    // Fetch entries within the period
+    // Satu kueri mencakup rentang ringkasan dan rentang grafik tren
     const entries = await prisma.productionEntry.findMany({
       where: {
-        createdAt: { gte: startDate, lt: endDate },
+        createdAt: {
+          gte: trendStart < range.start ? trendStart : range.start,
+          lt: trendEnd > range.end ? trendEnd : range.end,
+        },
       },
       include: { ingredients: true },
     });
@@ -38,140 +34,56 @@ export async function GET(request: NextRequest) {
     let totalBahanKg = 0;
     const recipeMap = new Map<string, number>();
     const ingredientMap = new Map<string, number>();
-
-    // Trend grouping setup
-    // For harian/mingguan: group by day. For bulanan: group by week/day.
-    // Let's keep it simple: array of data points
-    const trendMap = new Map<string, number>();
-    
-    // Initialize trend map based on period
-    const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
-    if (period === "harian") {
-      // Just today, maybe show hours? Or just today vs yesterday. The mockup shows days of week for "Tren Produksi"
-      // So let's always return the last 7 days of trend data for 'harian' and 'mingguan' to match the mockup
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        trendMap.set(dayNames[d.getDay()], 0);
-      }
-    } else if (period === "mingguan") {
-       for (let i = 6; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        trendMap.set(dayNames[d.getDay()], 0);
-      }
-    } else if (period === "bulanan") {
-      // 4 weeks of the month
-      trendMap.set("Minggu 1", 0);
-      trendMap.set("Minggu 2", 0);
-      trendMap.set("Minggu 3", 0);
-      trendMap.set("Minggu 4", 0);
-    }
+    const trendValues = range.buckets.map(() => 0);
 
     for (const entry of entries) {
+      const bucketIdx = range.buckets.findIndex(
+        (b) => entry.createdAt >= b.start && entry.createdAt < b.end
+      );
+      if (bucketIdx >= 0) trendValues[bucketIdx] += entry.batchCount;
+
+      if (entry.createdAt < range.start || entry.createdAt >= range.end) continue;
+
       totalBatch += entry.batchCount;
+      recipeMap.set(entry.recipeName, (recipeMap.get(entry.recipeName) || 0) + entry.batchCount);
 
-      // Recipe aggregation
-      const rName = entry.recipeName;
-      recipeMap.set(rName, (recipeMap.get(rName) || 0) + entry.batchCount);
-
-      // Trend aggregation
-      if (period === "harian" || period === "mingguan") {
-        const entryDay = dayNames[entry.createdAt.getDay()];
-        if (trendMap.has(entryDay)) {
-          trendMap.set(entryDay, trendMap.get(entryDay)! + entry.batchCount);
-        }
-      } else {
-        const weekNum = Math.ceil(entry.createdAt.getDate() / 7);
-        const wKey = `Minggu ${weekNum > 4 ? 4 : weekNum}`;
-        if (trendMap.has(wKey)) {
-          trendMap.set(wKey, trendMap.get(wKey)! + entry.batchCount);
-        }
-      }
-
-      // Ingredients aggregation
       for (const ing of entry.ingredients) {
-        const qtyInKg = normalizeToKg(ing.quantity, ing.unit);
-        const usedKg = entry.batchCount * qtyInKg;
+        const usedKg = entry.batchCount * normalizeToKg(ing.quantity, ing.unit);
         totalBahanKg += usedKg;
-
-        const iName = ing.ingredientName;
-        ingredientMap.set(iName, (ingredientMap.get(iName) || 0) + usedKg);
+        ingredientMap.set(ing.ingredientName, (ingredientMap.get(ing.ingredientName) || 0) + usedKg);
       }
     }
 
-    // Format top recipes
-    const sortedRecipes = Array.from(recipeMap.entries())
-      .sort((a, b) => b[1] - a[1]);
-    const maxRecipeBatch = sortedRecipes.length > 0 ? sortedRecipes[0][1] : 1;
-    const topRecipes = sortedRecipes.map(([name, batches]) => ({
-      name,
-      value: batches,
-      unit: "Resep",
-      percentage: Math.round((batches / maxRecipeBatch) * 100) || 0,
-    }));
-
-    // Format top ingredients
-    const sortedIngredients = Array.from(ingredientMap.entries())
-      .sort((a, b) => b[1] - a[1]);
-    const maxIngredientKg = sortedIngredients.length > 0 ? sortedIngredients[0][1] : 1;
-    const topIngredients = sortedIngredients.map(([name, kg]) => ({
-      name,
-      value: Math.round(kg * 10) / 10,
-      unit: "kg",
-      percentage: Math.round((kg / maxIngredientKg) * 100) || 0,
-    }));
-
-    // Format trend data
-    const trendDataRaw = Array.from(trendMap.entries()).map(([label, value]) => ({
-      label,
-      value,
-      isPeak: false,
-    }));
-    const maxTrendValue = Math.max(...trendDataRaw.map((d) => d.value));
-    const trendData = trendDataRaw.map((d) => ({
-      ...d,
-      isPeak: maxTrendValue > 0 && d.value === maxTrendValue,
-    }));
-
-    // Format Date Range string for UI
-    const formatDate = (date: Date) => {
-      return date.toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
+    const ranked = (map: Map<string, number>, unit: string, round: (v: number) => number) => {
+      const sorted = [...map.entries()].sort((a, b) => b[1] - a[1]);
+      const max = sorted[0]?.[1] || 1;
+      return sorted.map(([name, v]) => ({
+        name,
+        value: round(v),
+        unit,
+        percentage: Math.round((v / max) * 100) || 0,
+      }));
     };
 
-    let dateRangeStr = "";
-    if (period === "harian") {
-      dateRangeStr = formatDate(startDate);
-    } else if (period === "mingguan") {
-      // endDate is actually the start of the *next* day, so subtract 1 ms to get the end of the current period
-      const actualEndDate = new Date(endDate.getTime() - 1);
-      dateRangeStr = `${formatDate(startDate)} - ${formatDate(actualEndDate)}`;
-    } else if (period === "bulanan") {
-      dateRangeStr = startDate.toLocaleDateString("id-ID", {
-        month: "long",
-        year: "numeric",
-      });
-    }
+    const maxTrend = Math.max(...trendValues);
 
     return NextResponse.json({
-      dateRange: dateRangeStr,
+      offset,
+      dateRange: range.dateRange,
       summary: {
         totalBatch,
         totalBahanKg: Math.round(totalBahanKg * 10) / 10,
       },
-      topRecipes,
-      topIngredients,
-      trendData,
+      topRecipes: ranked(recipeMap, "Resep", (v) => v),
+      topIngredients: ranked(ingredientMap, "kg", (v) => Math.round(v * 10) / 10),
+      trendData: range.buckets.map((b, i) => ({
+        label: b.label,
+        value: trendValues[i],
+        isPeak: maxTrend > 0 && trendValues[i] === maxTrend,
+      })),
     });
   } catch (error) {
     console.error("Reports API error:", error);
-    return NextResponse.json(
-      { error: "Gagal memuat data laporan" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Gagal memuat data laporan" }, { status: 500 });
   }
 }
