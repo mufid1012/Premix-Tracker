@@ -100,22 +100,41 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET /api/productions — Get recent production sessions
-export async function GET() {
+const PAGE_SIZE = 20;
+
+// GET /api/productions?before=<id> — riwayat sesi, terbaru dulu, 20 per halaman
+export async function GET(request: NextRequest) {
   try {
+    const before = Number(request.nextUrl.searchParams.get("before"));
+
     const sessions = await prisma.productionSession.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 20,
-      include: {
-        entries: {
-          include: {
-            recipe: true,
-          },
-        },
-      },
+      where: Number.isInteger(before) && before > 0 ? { id: { lt: before } } : undefined,
+      orderBy: { id: "desc" },
+      take: PAGE_SIZE,
+      include: { entries: { include: { ingredients: true } } },
     });
 
-    return NextResponse.json(sessions);
+    return NextResponse.json({
+      sessions: sessions.map((s) => ({
+        id: s.id,
+        createdAt: s.createdAt,
+        totalBatch: s.entries.reduce((sum, e) => sum + e.batchCount, 0),
+        totalBahanKg:
+          Math.round(
+            s.entries.reduce(
+              (sum, e) =>
+                sum +
+                e.ingredients.reduce(
+                  (acc, ing) => acc + e.batchCount * normalizeToKg(ing.quantity, ing.unit),
+                  0
+                ),
+              0
+            ) * 10
+          ) / 10,
+        entries: s.entries.map((e) => ({ recipeName: e.recipeName, batchCount: e.batchCount })),
+      })),
+      nextBefore: sessions.length === PAGE_SIZE ? sessions[sessions.length - 1].id : null,
+    });
   } catch (error) {
     console.error("Productions GET error:", error);
     return NextResponse.json(
