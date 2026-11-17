@@ -8,7 +8,8 @@ colors:
   white: '#ffffff'
   ink: '#000000'
   ink-soft: '#565e67'
-  line: '#828c97'
+  line: '#cfd4cc'
+  line-strong: '#828c97'
   band: '#242628'
   accent: '#0067df'
   danger: '#ba1a1a'
@@ -32,7 +33,8 @@ Aplikasi ini lembar log produksi untuk staf dapur, dipakai di ponsel dan tablet 
 
 - **Warna:** netral menanggung struktur; biru `accent` hanya untuk aksi utama halaman (Selesaikan Sesi), angka penghitung yang sudah terisi, batang puncak di grafik, dan cincin fokus.
 - **Tata letak:** satu kolom berbingkai garis vertikal (`.frame`), tiap bagian dipisah garis horizontal selebar layar (`.row`). Halaman terbaca seperti lembar log bergaris; ini motif identitasnya.
-- **Pita gelap (`.band`):** membuka setiap bagian data, menggantikan judul kartu, supaya mata langsung menemukan awal bagian.
+- **Dua tingkat garis:** `line` (abu-abu muda) untuk semua pemisah di dalam isi, `line-strong` hanya untuk bingkai luar, kolom isian, chip, tombol bergaris, dan batang grafik. Diubah 18 Nov 2026 karena garis gelap di mana-mana terasa melelahkan.
+- **Pita gelap (`.band`):** hanya di halaman yang membagi data per kelompok (Laporan, Riwayat). Halaman lain memakai judul teks biasa supaya tidak terlalu banyak blok hitam.
 - **Tektur:** judul halaman dan angka besar, bentuk persegi bersudut tumpul paling mirip huruf acuan dan tetap terbaca dari jarak meja dapur.
 - **Inter:** teks isi, netral dan jelas pada ukuran 16px.
 - **JetBrains Mono kapital:** label, navigasi, tombol; meniru label acuan dan membedakan label dari data.

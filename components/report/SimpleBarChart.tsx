@@ -17,7 +17,7 @@ export default function SimpleBarChart({ data }: SimpleBarChartProps) {
         {data.map((item) => (
           <div
             key={item.label}
-            className={`relative flex-1 ${item.isPeak ? "bg-accent" : "bg-line"}`}
+            className={`relative flex-1 ${item.isPeak ? "bg-accent" : "bg-line-strong"}`}
             style={{ height: `${Math.max((item.value / maxVal) * 100, 3)}%` }}
           >
             <span

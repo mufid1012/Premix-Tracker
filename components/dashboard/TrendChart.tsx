@@ -67,7 +67,7 @@ export default function TrendChart({ data }: TrendChartProps) {
 
       <div className="mt-4 flex items-center justify-center gap-6 label-mono">
         <span className="flex items-center gap-2">
-          <span aria-hidden="true" className="w-3 h-3 bg-line" />
+          <span aria-hidden="true" className="w-3 h-3 bg-line-strong" />
           Normal
         </span>
         <span className="flex items-center gap-2">

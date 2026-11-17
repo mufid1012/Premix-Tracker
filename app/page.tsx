@@ -99,7 +99,9 @@ export default function DashboardPage() {
 
           <section className="row">
             <div className="frame">
-              <h2 className="band">Tren penggunaan bahan, 7 hari</h2>
+              <h2 className="bg-white px-4 md:px-6 pt-5 text-[18px] font-semibold">
+                Tren penggunaan bahan, 7 hari
+              </h2>
               <TrendChart data={data.weeklyTrend} />
             </div>
           </section>
