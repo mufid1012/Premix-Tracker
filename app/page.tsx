@@ -23,7 +23,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetch("/api/dashboard")
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
         setData(json);
         setLoading(false);
@@ -74,6 +74,12 @@ export default function DashboardPage() {
             Memuat data...
           </p>
         </div>
+      )}
+
+      {!loading && !data && (
+        <p className="text-center py-8 text-on-surface-variant">
+          Gagal memuat data dashboard.
+        </p>
       )}
 
       {/* Bento Grid Metrics */}

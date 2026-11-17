@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { normalizeToKg } from "@/lib/units";
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,11 +31,7 @@ export async function GET(request: NextRequest) {
       where: {
         createdAt: { gte: startDate, lt: endDate },
       },
-      include: {
-        recipe: {
-          include: { ingredients: true },
-        },
-      },
+      include: { ingredients: true },
     });
 
     let totalBatch = 0;
@@ -75,7 +72,7 @@ export async function GET(request: NextRequest) {
       totalBatch += entry.batchCount;
 
       // Recipe aggregation
-      const rName = entry.recipe.name;
+      const rName = entry.recipeName;
       recipeMap.set(rName, (recipeMap.get(rName) || 0) + entry.batchCount);
 
       // Trend aggregation
@@ -93,7 +90,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Ingredients aggregation
-      for (const ing of entry.recipe.ingredients) {
+      for (const ing of entry.ingredients) {
         const qtyInKg = normalizeToKg(ing.quantity, ing.unit);
         const usedKg = entry.batchCount * qtyInKg;
         totalBahanKg += usedKg;
@@ -177,10 +174,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-function normalizeToKg(quantity: number, unit: string): number {
-  const u = unit.toLowerCase();
-  if (u === "kg" || u === "liter" || u === "l") return quantity;
-  return quantity / 1000;
 }

@@ -27,7 +27,7 @@ export default function LaporanPage() {
   useEffect(() => {
     setLoading(true);
     fetch(`/api/reports?period=${period}`)
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
         setData(json);
         setLoading(false);

@@ -80,7 +80,7 @@ export async function DELETE(
       return NextResponse.json({ error: "ID resep tidak valid" }, { status: 400 });
     }
 
-    // Because of onDelete: Cascade on ProductionEntry, deleting the recipe will also delete logs.
+    // Riwayat produksi tetap ada: entry menyimpan snapshot nama + komposisi (onDelete: SetNull).
     await prisma.recipe.delete({
       where: { id: recipeId },
     });

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { normalizeToKg } from "@/lib/units";
 
 export async function GET() {
   try {
@@ -17,11 +18,7 @@ export async function GET() {
       where: {
         createdAt: { gte: today, lt: tomorrow },
       },
-      include: {
-        recipe: {
-          include: { ingredients: true },
-        },
-      },
+      include: { ingredients: true },
     });
 
     const totalBatchToday = todayEntries.reduce(
@@ -54,7 +51,7 @@ export async function GET() {
     // Kalkulasi: batch_count × ingredient.quantity (normalisasi ke Kg)
     let totalBahanKg = 0;
     for (const entry of todayEntries) {
-      for (const ing of entry.recipe.ingredients) {
+      for (const ing of entry.ingredients) {
         const qtyInKg = normalizeToKg(ing.quantity, ing.unit);
         totalBahanKg += entry.batchCount * qtyInKg;
       }
@@ -75,14 +72,12 @@ export async function GET() {
         where: {
           createdAt: { gte: dayStart, lt: dayEnd },
         },
-        include: {
-          recipe: { include: { ingredients: true } },
-        },
+        include: { ingredients: true },
       });
 
       let dayBahan = 0;
       for (const entry of dayEntries) {
-        for (const ing of entry.recipe.ingredients) {
+        for (const ing of entry.ingredients) {
           dayBahan += entry.batchCount * normalizeToKg(ing.quantity, ing.unit);
         }
       }
@@ -116,13 +111,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-}
-
-/** Normalize quantity to Kg */
-function normalizeToKg(quantity: number, unit: string): number {
-  const u = unit.toLowerCase();
-  if (u === "kg") return quantity;
-  if (u === "gr" || u === "gram" || u === "g") return quantity / 1000;
-  if (u === "ml" || u === "liter" || u === "l") return quantity / 1000;
-  return quantity / 1000; // default: treat as grams
 }

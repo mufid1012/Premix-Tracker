@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { normalizeToKg } from "@/lib/units";
 
 interface Ingredient {
   id: number;
@@ -28,11 +29,10 @@ export default function RecipeCard({
   onEdit,
 }: RecipeCardProps) {
   // Hitung total berat semua bahan dalam Kg
-  const totalBeratKg = ingredients.reduce((sum, ing) => {
-    const u = ing.unit.toLowerCase();
-    const inKg = u === "kg" || u === "liter" || u === "l" ? ing.quantity : ing.quantity / 1000;
-    return sum + inKg;
-  }, 0);
+  const totalBeratKg = ingredients.reduce(
+    (sum, ing) => sum + normalizeToKg(ing.quantity, ing.unit),
+    0
+  );
   
   const totalBeratGram = totalBeratKg * 1000;
   

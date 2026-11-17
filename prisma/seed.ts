@@ -277,17 +277,31 @@ async function main() {
   });
 
   // --- Sample Production Session (for dashboard data) ---
+  const sampleRecipes = await prisma.recipe.findMany({
+    take: 3,
+    orderBy: { id: "asc" },
+    include: { ingredients: true },
+  });
+  const sampleBatchCounts = [3, 2, 2];
+
   await prisma.productionSession.create({
     data: {
       sessionDate: new Date(),
       status: "completed",
       completedAt: new Date(),
       entries: {
-        create: [
-          { recipeId: 1, batchCount: 3 },
-          { recipeId: 2, batchCount: 2 },
-          { recipeId: 3, batchCount: 2 },
-        ],
+        create: sampleRecipes.map((r, i) => ({
+          recipeId: r.id,
+          recipeName: r.name,
+          batchCount: sampleBatchCounts[i],
+          ingredients: {
+            create: r.ingredients.map((ing) => ({
+              ingredientName: ing.ingredientName,
+              quantity: ing.quantity,
+              unit: ing.unit,
+            })),
+          },
+        })),
       },
     },
   });

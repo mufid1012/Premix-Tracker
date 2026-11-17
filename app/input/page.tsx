@@ -25,6 +25,7 @@ export default function InputPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [batchCounts, setBatchCounts] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -32,16 +33,24 @@ export default function InputPage() {
     const params = new URLSearchParams();
     if (activeCategory !== "all") params.set("category", activeCategory);
     if (searchQuery.trim()) params.set("search", searchQuery.trim());
-    const res = await fetch(`/api/recipes?${params}`);
-    const data = await res.json();
-    setRecipes(data);
-    setLoading(false);
+    try {
+      const res = await fetch(`/api/recipes?${params}`);
+      if (!res.ok) throw new Error();
+      setRecipes(await res.json());
+      setLoadError(false);
+    } catch {
+      setRecipes([]);
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [activeCategory, searchQuery]);
 
   useEffect(() => {
     fetch("/api/categories")
-      .then((r) => r.json())
-      .then(setCategories);
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setCategories)
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -87,14 +96,14 @@ export default function InputPage() {
         body: JSON.stringify({ entries }),
       });
 
-      if (res.ok) {
-        const result = await res.json();
-        setSuccessMessage(
-          `✅ Sesi berhasil disimpan! ${result.totalBatch} batch, ${result.totalBahanKg} kg bahan terpakai.`
-        );
-        setBatchCounts({});
-        setTimeout(() => setSuccessMessage(null), 5000);
-      }
+      // Respons 4xx/5xx juga harus memunculkan pesan gagal (lihat catch)
+      if (!res.ok) throw new Error();
+      const result = await res.json();
+      setSuccessMessage(
+        `✅ Sesi berhasil disimpan! ${result.totalBatch} batch, ${result.totalBahanKg} kg bahan terpakai.`
+      );
+      setBatchCounts({});
+      setTimeout(() => setSuccessMessage(null), 5000);
     } catch {
       setSuccessMessage("❌ Gagal menyimpan sesi. Coba lagi.");
       setTimeout(() => setSuccessMessage(null), 3000);
@@ -201,7 +210,7 @@ export default function InputPage() {
             restaurant
           </span>
           <p className="text-body-lg font-[500] text-on-surface">
-            Belum ada resep
+            {loadError ? "Gagal memuat resep. Coba lagi." : "Belum ada resep"}
           </p>
           <p className="text-body-md text-on-surface-variant">
             Buat resep terlebih dahulu di halaman Manajemen Resep.

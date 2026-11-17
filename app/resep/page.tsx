@@ -37,6 +37,7 @@ export default function ResepPage() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [editRecipeData, setEditRecipeData] = useState<Recipe | null>(null);
@@ -46,16 +47,24 @@ export default function ResepPage() {
     if (activeCategory !== "all") params.set("category", activeCategory);
     if (searchQuery.trim()) params.set("search", searchQuery.trim());
 
-    const res = await fetch(`/api/recipes?${params}`);
-    const data = await res.json();
-    setRecipes(data);
-    setLoading(false);
+    try {
+      const res = await fetch(`/api/recipes?${params}`);
+      if (!res.ok) throw new Error();
+      setRecipes(await res.json());
+      setLoadError(false);
+    } catch {
+      setRecipes([]);
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [activeCategory, searchQuery]);
 
   useEffect(() => {
     fetch("/api/categories")
-      .then((r) => r.json())
-      .then(setCategories);
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setCategories)
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -72,6 +81,8 @@ export default function ResepPage() {
     if (res.ok) {
       setShowModal(false);
       fetchRecipes();
+    } else {
+      alert("Gagal menyimpan resep. Coba lagi.");
     }
   };
 
@@ -85,6 +96,8 @@ export default function ResepPage() {
     if (res.ok) {
       setEditRecipeData(null);
       fetchRecipes();
+    } else {
+      alert("Gagal menyimpan resep. Coba lagi.");
     }
   };
 
@@ -226,7 +239,7 @@ export default function ResepPage() {
             restaurant_menu
           </span>
           <p className="text-body-lg font-[500] text-on-surface mb-[4px]">
-            Belum ada resep
+            {loadError ? "Gagal memuat resep. Coba lagi." : "Belum ada resep"}
           </p>
           <p className="text-body-md text-on-surface-variant mb-[20px]">
             Buat resep pertama untuk memulai pencatatan produksi.

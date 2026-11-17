@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { normalizeToKg } from "@/lib/units";
 
 interface Category {
   id: number;
@@ -93,11 +94,10 @@ export default function RecipeFormModal({
     );
 
     // Auto-calculate standard batch from ingredients
-    const totalBerat = validIngredients.reduce((sum, ing) => {
-      const u = ing.unit.toLowerCase();
-      const inKg = u === "kg" || u === "liter" || u === "l" ? ing.quantity : ing.quantity / 1000;
-      return sum + inKg;
-    }, 0);
+    const totalBerat = validIngredients.reduce(
+      (sum, ing) => sum + normalizeToKg(ing.quantity, ing.unit),
+      0
+    );
     const calculatedBatchKg = totalBerat > 0 ? totalBerat : 1;
 
     setSubmitting(true);
@@ -271,7 +271,7 @@ export default function RecipeFormModal({
               onClick={() => {
                 if (
                   confirm(
-                    "Apakah Anda yakin ingin menghapus resep ini? Peringatan: Semua log riwayat produksi untuk resep ini juga akan terhapus secara permanen!"
+                    "Apakah Anda yakin ingin menghapus resep ini? Riwayat produksi resep ini tetap tersimpan di laporan."
                   )
                 ) {
                   setIsDeleting(true);
