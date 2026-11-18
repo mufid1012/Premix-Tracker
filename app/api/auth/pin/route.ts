@@ -25,6 +25,15 @@ export async function POST(request: NextRequest) {
   gate.reset();
   const { value, maxAge } = issueToken();
   const res = NextResponse.json({ success: true });
-  res.cookies.set(ADMIN_COOKIE, value, { httpOnly: true, sameSite: "strict", path: "/", maxAge });
+  // Di server online (HTTPS, biasanya di balik proxy) cookie hanya dikirim lewat koneksi aman
+  const https =
+    request.nextUrl.protocol === "https:" || request.headers.get("x-forwarded-proto") === "https";
+  res.cookies.set(ADMIN_COOKIE, value, {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: https,
+    path: "/",
+    maxAge,
+  });
   return res;
 }
