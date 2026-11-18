@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Modal from "./Modal";
+import Modal from "@/components/Modal";
 
 interface Category {
   id: number;
@@ -11,7 +11,6 @@ interface Category {
 
 interface CategoryManagerModalProps {
   categories: Category[];
-  isOpen: boolean;
   onClose: () => void;
   onAddCategory: (name: string, icon: string) => Promise<void>;
   onDeleteCategory: (id: number) => Promise<void>;
@@ -32,7 +31,6 @@ const errorMessage = (err: unknown, fallback: string) =>
 
 export default function CategoryManagerModal({
   categories,
-  isOpen,
   onClose,
   onAddCategory,
   onDeleteCategory,
@@ -42,8 +40,6 @@ export default function CategoryManagerModal({
   const [adding, setAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  if (!isOpen) return null;
 
   const handleAdd = async () => {
     if (!newCatName.trim()) return;

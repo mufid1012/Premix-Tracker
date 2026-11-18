@@ -1,35 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/adminAuth";
+import { parseRecipeInput, RECIPE_INPUT_ERROR } from "@/lib/recipeInput";
 
-// GET /api/recipes — List all recipes with optional category/search filter
+const withDetails = {
+  category: true,
+  ingredients: { orderBy: { sortOrder: "asc" as const } },
+};
+
+// GET /api/recipes?category=<id>&search=<teks>&sort=popular
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const categoryId = searchParams.get("category");
-    const search = searchParams.get("search");
-
-    const where: Record<string, unknown> = {};
-
-    if (categoryId && categoryId !== "all") {
-      where.categoryId = Number(categoryId);
-    }
-
-    if (search) {
-      where.name = { contains: search };
-    }
+    const params = request.nextUrl.searchParams;
+    const categoryId = Number(params.get("category"));
+    const search = params.get("search")?.trim();
 
     const recipes = await prisma.recipe.findMany({
-      where,
-      include: {
-        category: true,
-        ingredients: {
-          orderBy: { sortOrder: "asc" },
-        },
+      where: {
+        // "all" atau nilai bukan angka berarti tanpa filter kategori
+        ...(Number.isInteger(categoryId) && categoryId > 0 ? { categoryId } : {}),
+        ...(search ? { name: { contains: search } } : {}),
       },
-      // ?sort=popular: resep yang paling sering dicatat di produksi tampil paling atas
+      include: withDetails,
+      // sort=popular: resep yang paling sering dicatat di produksi tampil paling atas
       orderBy:
-        searchParams.get("sort") === "popular"
+        params.get("sort") === "popular"
           ? [{ productions: { _count: "desc" } }, { name: "asc" }]
           : { createdAt: "desc" },
     });
@@ -37,62 +32,31 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(recipes);
   } catch (error) {
     console.error("Recipes GET error:", error);
-    return NextResponse.json(
-      { error: "Gagal memuat resep" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Gagal memuat resep" }, { status: 500 });
   }
 }
 
-// POST /api/recipes — Create a new recipe
+// POST /api/recipes: buat resep baru (perlu PIN pemilik bila diaktifkan)
 export async function POST(request: NextRequest) {
   const denied = requireAdmin(request);
   if (denied) return denied;
   try {
-    const body = await request.json();
-    const { name, categoryId, description, standardBatchKg, unit, ingredients } =
-      body;
+    const input = parseRecipeInput(await request.json().catch(() => null));
+    if (!input) return NextResponse.json({ error: RECIPE_INPUT_ERROR }, { status: 400 });
 
-    if (!name || !categoryId || !standardBatchKg) {
-      return NextResponse.json(
-        { error: "Nama, kategori, dan standar batch wajib diisi" },
-        { status: 400 }
-      );
+    if (!(await prisma.category.findUnique({ where: { id: input.categoryId } }))) {
+      return NextResponse.json({ error: "Kategori tidak ditemukan" }, { status: 400 });
     }
 
-    const recipe = await prisma.recipe.create({
-      data: {
-        name,
-        categoryId: Number(categoryId),
-        description: description || "",
-        standardBatchKg: Number(standardBatchKg),
-        unit: unit || "Kg",
-        ingredients: {
-          create: (ingredients || []).map(
-            (
-              ing: { name: string; quantity: number; unit: string },
-              idx: number
-            ) => ({
-              ingredientName: ing.name,
-              quantity: Number(ing.quantity),
-              unit: ing.unit || "Kg",
-              sortOrder: idx + 1,
-            })
-          ),
-        },
-      },
-      include: {
-        category: true,
-        ingredients: { orderBy: { sortOrder: "asc" } },
-      },
+    const { ingredients, ...recipe } = input;
+    const created = await prisma.recipe.create({
+      data: { ...recipe, ingredients: { create: ingredients } },
+      include: withDetails,
     });
 
-    return NextResponse.json(recipe, { status: 201 });
+    return NextResponse.json(created, { status: 201 });
   } catch (error) {
     console.error("Recipes POST error:", error);
-    return NextResponse.json(
-      { error: "Gagal membuat resep" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Gagal membuat resep" }, { status: 500 });
   }
 }

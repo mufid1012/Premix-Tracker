@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { normalizeToKg } from "@/lib/units";
+import { normalizeToKg, round1 } from "@/lib/units";
 import { periodRange, type Period } from "@/lib/reportPeriod";
 
 const PERIODS: Period[] = ["harian", "mingguan", "bulanan"];
@@ -72,10 +72,10 @@ export async function GET(request: NextRequest) {
       dateRange: range.dateRange,
       summary: {
         totalBatch,
-        totalBahanKg: Math.round(totalBahanKg * 10) / 10,
+        totalBahanKg: round1(totalBahanKg),
       },
       topRecipes: ranked(recipeMap, "Resep", (v) => v),
-      topIngredients: ranked(ingredientMap, "kg", (v) => Math.round(v * 10) / 10),
+      topIngredients: ranked(ingredientMap, "kg", round1),
       trendData: range.buckets.map((b, i) => ({
         label: b.label,
         value: trendValues[i],

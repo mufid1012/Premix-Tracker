@@ -45,6 +45,9 @@ export default function RootLayout({
       className={`${inter.variable} ${tektur.variable} ${jetbrains.variable} h-full`}
     >
       <head>
+        {/* Material Symbols tidak tersedia di next/font. Di App Router, root layout memang
+            tempat yang benar; aturan ini ditujukan untuk pages/_document. */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet"

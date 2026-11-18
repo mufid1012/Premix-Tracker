@@ -1,19 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { normalizeToKg } from "@/lib/units";
-import Modal from "./Modal";
+import Modal from "@/components/Modal";
 
 interface Category {
   id: number;
   name: string;
 }
 
+/** Dipasang hanya saat terbuka; isian awal diambil dari initialData (edit) atau kosong (baru). */
 interface RecipeFormModalProps {
   categories: Category[];
-  isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: RecipeFormData) => void;
+  onSubmit: (data: RecipeFormData) => Promise<void> | void;
   initialData?: RecipeFormData & { id: number };
   onDelete?: (id: number) => Promise<void> | void;
 }
@@ -36,46 +36,29 @@ const UNITS = [
   { value: "sdm", label: "sdm" },
 ];
 
+const EMPTY_INGREDIENT = { name: "", quantity: 0, unit: "Kg" };
+
 export default function RecipeFormModal({
   categories,
-  isOpen,
   onClose,
   onSubmit,
   initialData,
   onDelete,
 }: RecipeFormModalProps) {
-  const [name, setName] = useState("");
-  const [categoryId, setCategoryId] = useState<number>(categories[0]?.id || 1);
-  const [description, setDescription] = useState("");
-  const [ingredients, setIngredients] = useState([{ name: "", quantity: 0, unit: "Kg" }]);
+  const [name, setName] = useState(initialData?.name ?? "");
+  const [chosenCategoryId, setCategoryId] = useState<number | undefined>(initialData?.categoryId);
+  const [description, setDescription] = useState(initialData?.description ?? "");
+  const [ingredients, setIngredients] = useState(
+    initialData?.ingredients.length ? initialData.ingredients : [EMPTY_INGREDIENT]
+  );
   const [submitting, setSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      if (initialData) {
-        setName(initialData.name);
-        setCategoryId(initialData.categoryId);
-        setDescription(initialData.description);
-        setIngredients(
-          initialData.ingredients.length > 0
-            ? initialData.ingredients
-            : [{ name: "", quantity: 0, unit: "Kg" }]
-        );
-      } else {
-        setName("");
-        setCategoryId(categories[0]?.id || 1);
-        setDescription("");
-        setIngredients([{ name: "", quantity: 0, unit: "Kg" }]);
-      }
-      setIsDeleting(false);
-    }
-  }, [isOpen, initialData, categories]);
-
-  if (!isOpen) return null;
+  // Kategori bisa belum termuat saat modal dibuka; pakai yang pertama sebagai bawaan
+  const categoryId = chosenCategoryId ?? categories[0]?.id;
 
   const addIngredient = () => {
-    setIngredients([...ingredients, { name: "", quantity: 0, unit: "Kg" }]);
+    setIngredients([...ingredients, EMPTY_INGREDIENT]);
   };
 
   const removeIngredient = (idx: number) => {
@@ -93,7 +76,7 @@ export default function RecipeFormModal({
   };
 
   const handleSubmit = async () => {
-    if (!name.trim()) return;
+    if (!name.trim() || categoryId === undefined) return;
 
     const validIngredients = ingredients.filter((ing) => ing.name.trim() && ing.quantity > 0);
 
@@ -177,7 +160,7 @@ export default function RecipeFormModal({
         </label>
         <select
           id="resep-kategori"
-          value={categoryId}
+          value={categoryId ?? ""}
           onChange={(e) => setCategoryId(Number(e.target.value))}
           className="field"
         >

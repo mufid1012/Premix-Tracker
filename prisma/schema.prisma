@@ -34,7 +34,6 @@ model Recipe {
   description     String?  @db.Text
   standardBatchKg Float    @map("standard_batch_kg")
   unit            String   @default("Kg") @db.VarChar(20)
-  isUrgent        Boolean  @default(false) @map("is_urgent")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
@@ -66,8 +65,6 @@ model RecipeIngredient {
 // ===================================================================
 model ProductionSession {
   id          Int       @id @default(autoincrement())
-  sessionDate DateTime  @default(now()) @map("session_date") @db.Date
-  status      String    @default("completed") @db.VarChar(20) // active, completed
   createdAt   DateTime  @default(now()) @map("created_at")
   completedAt DateTime? @map("completed_at")
 

@@ -25,7 +25,10 @@ export default function LaporanPage() {
   // 0 = periode berjalan, 1 = sebelumnya, dst.
   const [offset, setOffset] = useState(0);
   const [data, setData] = useState<ReportData | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Kunci periode yang datanya sedang tampil; beda dengan kunci aktif berarti sedang memuat
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  const key = `${period}:${offset}`;
+  const loading = loadedKey !== key;
 
   const changePeriod = (p: Period) => {
     setPeriod(p);
@@ -33,14 +36,16 @@ export default function LaporanPage() {
   };
 
   useEffect(() => {
-    setLoading(true);
-    fetch(`/api/reports?period=${period}&offset=${offset}`)
+    const controller = new AbortController();
+    fetch(`/api/reports?period=${period}&offset=${offset}`, { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : null))
+      .catch(() => null)
       .then((json) => {
+        if (controller.signal.aborted) return;
         setData(json);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+        setLoadedKey(`${period}:${offset}`);
+      });
+    return () => controller.abort();
   }, [period, offset]);
 
   const periodNoun = { harian: "hari", mingguan: "minggu", bulanan: "bulan" }[period];

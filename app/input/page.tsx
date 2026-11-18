@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef, useSyncExternalStore } from "react";
+import { useEffect, useState, useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
 import ProductionCard from "@/components/production/ProductionCard";
 import SessionFooter from "@/components/production/SessionFooter";
 import CategoryFilter from "@/components/recipe/CategoryFilter";
 import SearchField from "@/components/recipe/SearchField";
+import { useRecipeList } from "@/components/recipe/useRecipeList";
 import { readDraft, writeDraft, type Counts } from "@/lib/draft";
 
 type Toast = {
@@ -28,29 +29,28 @@ const formatDraftTime = (iso: string) => {
     : d.toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 };
 
-interface Category {
-  id: number;
-  name: string;
-}
-
 interface Recipe {
   id: number;
   name: string;
-  category: Category;
 }
 
 export default function InputPage() {
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [activeCategory, setActiveCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const {
+    recipes,
+    categories,
+    activeCategory,
+    setActiveCategory,
+    searchQuery,
+    setSearchQuery,
+    loading,
+    stale,
+    loadError,
+  } = useRecipeList<Recipe>({ sort: "popular" });
   const isClient = useIsClient();
   // Draf dibaca sekali saat halaman dibuka (di server selalu kosong)
   const [initialDraft] = useState(() => (typeof window === "undefined" ? null : readDraft()));
   const [batchCounts, setBatchCounts] = useState<Counts>(initialDraft?.counts ?? {});
   const [restoredAt, setRestoredAt] = useState(initialDraft?.updatedAt ?? null);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [undoing, setUndoing] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
@@ -66,35 +66,6 @@ export default function InputPage() {
   }, [batchCounts]);
 
   useEffect(() => () => clearTimeout(toastTimer.current), []);
-
-  const fetchRecipes = useCallback(async () => {
-    const params = new URLSearchParams({ sort: "popular" });
-    if (activeCategory !== "all") params.set("category", activeCategory);
-    if (searchQuery.trim()) params.set("search", searchQuery.trim());
-    try {
-      const res = await fetch(`/api/recipes?${params}`);
-      if (!res.ok) throw new Error();
-      setRecipes(await res.json());
-      setLoadError(false);
-    } catch {
-      setRecipes([]);
-      setLoadError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [activeCategory, searchQuery]);
-
-  useEffect(() => {
-    fetch("/api/categories")
-      .then((r) => (r.ok ? r.json() : []))
-      .then(setCategories)
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    setLoading(true);
-    fetchRecipes();
-  }, [fetchRecipes]);
 
   const handleIncrement = (recipeId: number) => {
     setBatchCounts((prev) => ({
@@ -259,7 +230,7 @@ export default function InputPage() {
       )}
 
       {!loading && recipes.length > 0 && (
-        <section className="row" aria-label="Daftar resep">
+        <section className="row" aria-label="Daftar resep" aria-busy={stale}>
           <div className="frame ruled-grid ruled-grid-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {recipes.map((recipe) => (
               <ProductionCard
@@ -275,7 +246,7 @@ export default function InputPage() {
         </section>
       )}
 
-      {!loading && recipes.length === 0 && (
+      {!loading && !stale && recipes.length === 0 && (
         <section className="row">
           <div className="frame px-4 py-12 text-center">
             {loadError ? (

@@ -15,3 +15,17 @@ export function normalizeToKg(quantity: number, unit: string): number {
   // gr, ml, dan satuan lain dihitung sebagai gram
   return quantity / 1000;
 }
+
+/** Total bahan (kg) satu entry produksi: jumlah resep x komposisi snapshot-nya. */
+export function entryKg(entry: {
+  batchCount: number;
+  ingredients: Array<{ quantity: number; unit: string }>;
+}): number {
+  return entry.ingredients.reduce(
+    (sum, ing) => sum + entry.batchCount * normalizeToKg(ing.quantity, ing.unit),
+    0
+  );
+}
+
+/** Bulatkan ke 1 desimal untuk tampilan kg */
+export const round1 = (n: number) => Math.round(n * 10) / 10;

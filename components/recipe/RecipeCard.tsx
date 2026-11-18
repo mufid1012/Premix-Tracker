@@ -35,7 +35,7 @@ export default function RecipeCard({
       : `${Math.round(totalBeratKg * 1000)} gram`;
 
   return (
-    <article className="bg-white grid md:grid-cols-[1fr_16rem]">
+    <article className="bg-white border border-line-strong grid md:grid-cols-[1fr_16rem]">
       <div className="p-5 md:p-8">
         <div className="flex justify-between items-start gap-4">
           <div>

@@ -1,101 +1,68 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/adminAuth";
+import { parseRecipeInput, RECIPE_INPUT_ERROR } from "@/lib/recipeInput";
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+type Params = { params: Promise<{ id: string }> };
+
+const parseId = async (params: Params["params"]) => {
+  const id = Number((await params).id);
+  return Number.isInteger(id) && id > 0 ? id : null;
+};
+
+// PUT /api/recipes/:id: ganti isi resep dan seluruh komposisi bahannya
+export async function PUT(request: NextRequest, { params }: Params) {
   const denied = requireAdmin(request);
   if (denied) return denied;
   try {
-    const { id } = await params;
-    const recipeId = parseInt(id);
-    if (isNaN(recipeId)) {
-      return NextResponse.json({ error: "ID resep tidak valid" }, { status: 400 });
+    const recipeId = await parseId(params);
+    if (!recipeId) return NextResponse.json({ error: "ID resep tidak valid" }, { status: 400 });
+
+    const input = parseRecipeInput(await request.json().catch(() => null));
+    if (!input) return NextResponse.json({ error: RECIPE_INPUT_ERROR }, { status: 400 });
+
+    const [recipeExists, categoryExists] = await Promise.all([
+      prisma.recipe.findUnique({ where: { id: recipeId }, select: { id: true } }),
+      prisma.category.findUnique({ where: { id: input.categoryId }, select: { id: true } }),
+    ]);
+    if (!recipeExists) return NextResponse.json({ error: "Resep tidak ditemukan" }, { status: 404 });
+    if (!categoryExists) {
+      return NextResponse.json({ error: "Kategori tidak ditemukan" }, { status: 400 });
     }
 
-    const body = await request.json();
-    const { name, categoryId, description, standardBatchKg, unit, ingredients } = body;
-
-    if (!name || !categoryId || !standardBatchKg) {
-      return NextResponse.json(
-        { error: "Nama, kategori, dan standar batch wajib diisi" },
-        { status: 400 }
-      );
-    }
-
-    // Gunakan transaction untuk menghapus ingredients lama dan membuat yang baru
-    const recipe = await prisma.$transaction(async (tx) => {
-      // 1. Hapus ingredient lama
-      await tx.recipeIngredient.deleteMany({
-        where: { recipeId },
-      });
-
-      // 2. Update resep dan buat ingredient baru
-      return await tx.recipe.update({
+    // Bahan lama dihapus lalu diganti, dalam satu transaksi supaya tidak setengah jadi
+    const { ingredients, ...recipe } = input;
+    const updated = await prisma.$transaction(async (tx) => {
+      await tx.recipeIngredient.deleteMany({ where: { recipeId } });
+      return tx.recipe.update({
         where: { id: recipeId },
-        data: {
-          name,
-          categoryId: Number(categoryId),
-          description: description || "",
-          standardBatchKg: Number(standardBatchKg),
-          unit: unit || "Kg",
-          ingredients: {
-            create: (ingredients || []).map(
-              (
-                ing: { name: string; quantity: number; unit: string },
-                idx: number
-              ) => ({
-                ingredientName: ing.name,
-                quantity: Number(ing.quantity),
-                unit: ing.unit || "Kg",
-                sortOrder: idx + 1,
-              })
-            ),
-          },
-        },
-        include: {
-          category: true,
-          ingredients: { orderBy: { sortOrder: "asc" } },
-        },
+        data: { ...recipe, ingredients: { create: ingredients } },
+        include: { category: true, ingredients: { orderBy: { sortOrder: "asc" } } },
       });
     });
 
-    return NextResponse.json(recipe);
+    return NextResponse.json(updated);
   } catch (error) {
     console.error("Recipes PUT error:", error);
-    return NextResponse.json(
-      { error: "Gagal memperbarui resep" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Gagal memperbarui resep" }, { status: 500 });
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+// DELETE /api/recipes/:id
+export async function DELETE(request: NextRequest, { params }: Params) {
   const denied = requireAdmin(request);
   if (denied) return denied;
   try {
-    const { id } = await params;
-    const recipeId = parseInt(id);
-    if (isNaN(recipeId)) {
-      return NextResponse.json({ error: "ID resep tidak valid" }, { status: 400 });
-    }
+    const recipeId = await parseId(params);
+    if (!recipeId) return NextResponse.json({ error: "ID resep tidak valid" }, { status: 400 });
 
-    // Riwayat produksi tetap ada: entry menyimpan snapshot nama + komposisi (onDelete: SetNull).
-    await prisma.recipe.delete({
-      where: { id: recipeId },
-    });
+    // Riwayat produksi tetap ada: entry menyimpan snapshot nama dan komposisi (onDelete: SetNull)
+    const { count } = await prisma.recipe.deleteMany({ where: { id: recipeId } });
+    if (count === 0) return NextResponse.json({ error: "Resep tidak ditemukan" }, { status: 404 });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Recipes DELETE error:", error);
-    return NextResponse.json(
-      { error: "Gagal menghapus resep" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Gagal menghapus resep" }, { status: 500 });
   }
 }

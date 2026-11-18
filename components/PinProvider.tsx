@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useState } from "react";
-import Modal from "./recipe/Modal";
+import Modal from "./Modal";
 
 type AdminFetch = (url: string, init?: RequestInit) => Promise<Response>;
 

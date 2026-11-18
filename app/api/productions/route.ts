@@ -1,30 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { normalizeToKg } from "@/lib/units";
+import { entryKg, round1 } from "@/lib/units";
 
-// POST /api/productions — Create a production session with entries
+const PAGE_SIZE = 20;
+
+type EntryInput = { recipeId: number; batchCount: number };
+
+const isValidEntry = (e: unknown): e is EntryInput =>
+  typeof e === "object" &&
+  e !== null &&
+  Number.isInteger((e as EntryInput).recipeId) &&
+  Number.isInteger((e as EntryInput).batchCount) &&
+  (e as EntryInput).batchCount >= 0;
+
+// POST /api/productions { entries: [{ recipeId, batchCount }] }: simpan satu sesi produksi
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { entries } = body as {
-      entries: Array<{ recipeId: number; batchCount: number }>;
-    };
+    const body = await request.json().catch(() => null);
+    const entries: unknown[] = Array.isArray(body?.entries) ? body.entries : [];
 
-    if (!entries || entries.length === 0) {
-      return NextResponse.json(
-        { error: "Minimal 1 entry produksi diperlukan" },
-        { status: 400 }
-      );
+    if (!entries.every(isValidEntry)) {
+      return NextResponse.json({ error: "Data produksi tidak valid" }, { status: 400 });
     }
-
-    // Filter only entries with batchCount > 0
-    const validEntries = entries.filter((e) => e.batchCount > 0);
-
+    const validEntries = (entries as EntryInput[]).filter((e) => e.batchCount > 0);
     if (validEntries.length === 0) {
-      return NextResponse.json(
-        { error: "Tidak ada batch yang dicatat" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Tidak ada resep yang dicatat" }, { status: 400 });
     }
 
     const recipes = await prisma.recipe.findMany({
@@ -32,19 +32,14 @@ export async function POST(request: NextRequest) {
       include: { ingredients: true },
     });
     const recipeById = new Map(recipes.map((r) => [r.id, r]));
-
     if (validEntries.some((e) => !recipeById.has(e.recipeId))) {
-      return NextResponse.json(
-        { error: "Resep tidak ditemukan" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Resep tidak ditemukan" }, { status: 400 });
     }
 
     // Nama dan komposisi resep disalin ke entry (snapshot), supaya laporan
     // lama tidak berubah saat resep diedit atau dihapus.
     const session = await prisma.productionSession.create({
       data: {
-        status: "completed",
         completedAt: new Date(),
         entries: {
           create: validEntries.map((e) => {
@@ -64,45 +59,25 @@ export async function POST(request: NextRequest) {
           }),
         },
       },
-      include: {
-        entries: { include: { ingredients: true } },
-      },
+      include: { entries: { include: { ingredients: true } } },
     });
-
-    // Calculate total ingredients used
-    let totalBahanKg = 0;
-    for (const entry of session.entries) {
-      for (const ing of entry.ingredients) {
-        totalBahanKg += entry.batchCount * normalizeToKg(ing.quantity, ing.unit);
-      }
-    }
-
-    const totalBatch = session.entries.reduce(
-      (sum, e) => sum + e.batchCount,
-      0
-    );
 
     return NextResponse.json(
       {
         sessionId: session.id,
-        totalBatch,
-        totalBahanKg: Math.round(totalBahanKg * 10) / 10,
+        totalBatch: session.entries.reduce((sum, e) => sum + e.batchCount, 0),
+        totalBahanKg: round1(session.entries.reduce((sum, e) => sum + entryKg(e), 0)),
         entryCount: session.entries.length,
       },
       { status: 201 }
     );
   } catch (error) {
     console.error("Productions POST error:", error);
-    return NextResponse.json(
-      { error: "Gagal menyimpan produksi" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Gagal menyimpan produksi" }, { status: 500 });
   }
 }
 
-const PAGE_SIZE = 20;
-
-// GET /api/productions?before=<id> — riwayat sesi, terbaru dulu, 20 per halaman
+// GET /api/productions?before=<id>: riwayat sesi, terbaru dulu, 20 per halaman
 export async function GET(request: NextRequest) {
   try {
     const before = Number(request.nextUrl.searchParams.get("before"));
@@ -119,27 +94,13 @@ export async function GET(request: NextRequest) {
         id: s.id,
         createdAt: s.createdAt,
         totalBatch: s.entries.reduce((sum, e) => sum + e.batchCount, 0),
-        totalBahanKg:
-          Math.round(
-            s.entries.reduce(
-              (sum, e) =>
-                sum +
-                e.ingredients.reduce(
-                  (acc, ing) => acc + e.batchCount * normalizeToKg(ing.quantity, ing.unit),
-                  0
-                ),
-              0
-            ) * 10
-          ) / 10,
+        totalBahanKg: round1(s.entries.reduce((sum, e) => sum + entryKg(e), 0)),
         entries: s.entries.map((e) => ({ recipeName: e.recipeName, batchCount: e.batchCount })),
       })),
       nextBefore: sessions.length === PAGE_SIZE ? sessions[sessions.length - 1].id : null,
     });
   } catch (error) {
     console.error("Productions GET error:", error);
-    return NextResponse.json(
-      { error: "Gagal memuat data produksi" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Gagal memuat riwayat sesi" }, { status: 500 });
   }
 }

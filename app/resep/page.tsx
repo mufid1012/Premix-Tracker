@@ -1,18 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import CategoryFilter from "@/components/recipe/CategoryFilter";
 import SearchField from "@/components/recipe/SearchField";
 import RecipeCard from "@/components/recipe/RecipeCard";
 import RecipeFormModal, { type RecipeFormData } from "@/components/recipe/RecipeFormModal";
 import CategoryManagerModal from "@/components/recipe/CategoryManagerModal";
+import { useRecipeList, type Category } from "@/components/recipe/useRecipeList";
 import { useAdminFetch } from "@/components/PinProvider";
-
-interface Category {
-  id: number;
-  name: string;
-  icon: string | null;
-}
 
 interface Ingredient {
   id: number;
@@ -34,45 +29,22 @@ interface Recipe {
 export default function ResepPage() {
   // Aksi yang mengubah resep/kategori bisa meminta PIN pemilik (401 + dialog PIN)
   const adminFetch = useAdminFetch();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [activeCategory, setActiveCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
+  const {
+    recipes,
+    categories,
+    setCategories,
+    activeCategory,
+    setActiveCategory,
+    searchQuery,
+    setSearchQuery,
+    loading,
+    stale,
+    loadError,
+    refresh: fetchRecipes,
+  } = useRecipeList<Recipe>();
   const [showModal, setShowModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [editRecipeData, setEditRecipeData] = useState<Recipe | null>(null);
-
-  const fetchRecipes = useCallback(async () => {
-    const params = new URLSearchParams();
-    if (activeCategory !== "all") params.set("category", activeCategory);
-    if (searchQuery.trim()) params.set("search", searchQuery.trim());
-
-    try {
-      const res = await fetch(`/api/recipes?${params}`);
-      if (!res.ok) throw new Error();
-      setRecipes(await res.json());
-      setLoadError(false);
-    } catch {
-      setRecipes([]);
-      setLoadError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [activeCategory, searchQuery]);
-
-  useEffect(() => {
-    fetch("/api/categories")
-      .then((r) => (r.ok ? r.json() : []))
-      .then(setCategories)
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    setLoading(true);
-    fetchRecipes();
-  }, [fetchRecipes]);
 
   const handleCreateRecipe = async (data: RecipeFormData) => {
     const res = await adminFetch("/api/recipes", {
@@ -191,8 +163,9 @@ export default function ResepPage() {
       )}
 
       {!loading && recipes.length > 0 && (
-        <section className="row" aria-label="Daftar resep">
-          <div className="frame ruled-grid">
+        <section className="row" aria-label="Daftar resep" aria-busy={stale}>
+          {/* Kartu terpisah dengan jarak, supaya tiap resep terbaca sebagai satu unit */}
+          <div className="frame p-3 md:p-6 flex flex-col gap-3 md:gap-5">
             {recipes.map((recipe) => (
               <RecipeCard
                 key={recipe.id}
@@ -208,7 +181,7 @@ export default function ResepPage() {
         </section>
       )}
 
-      {!loading && recipes.length === 0 && (
+      {!loading && !stale && recipes.length === 0 && (
         <section className="row">
           <div className="frame px-4 py-12 text-center">
             {loadError ? (
@@ -236,17 +209,18 @@ export default function ResepPage() {
         </section>
       )}
 
-      <RecipeFormModal
-        categories={categories}
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onSubmit={handleCreateRecipe}
-      />
+      {/* Modal dipasang hanya saat terbuka, jadi isian selalu mulai dari awal */}
+      {showModal && (
+        <RecipeFormModal
+          categories={categories}
+          onClose={() => setShowModal(false)}
+          onSubmit={handleCreateRecipe}
+        />
+      )}
 
       {editRecipeData && (
         <RecipeFormModal
           categories={categories}
-          isOpen={true}
           onClose={() => setEditRecipeData(null)}
           onSubmit={handleEditRecipe}
           initialData={{
@@ -266,13 +240,14 @@ export default function ResepPage() {
         />
       )}
 
-      <CategoryManagerModal
-        categories={categories}
-        isOpen={showCategoryModal}
-        onClose={() => setShowCategoryModal(false)}
-        onAddCategory={handleAddCategory}
-        onDeleteCategory={handleDeleteCategory}
-      />
+      {showCategoryModal && (
+        <CategoryManagerModal
+          categories={categories}
+          onClose={() => setShowCategoryModal(false)}
+          onAddCategory={handleAddCategory}
+          onDeleteCategory={handleDeleteCategory}
+        />
+      )}
     </>
   );
 }
