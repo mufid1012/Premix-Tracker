@@ -36,10 +36,22 @@ export default function PrintReport({
 }: PrintReportProps) {
   return createPortal(
     <div className="print-report">
-      <h1 className="text-[20px] font-bold">Laporan Produksi</h1>
-      <p className="mt-1">
-        Periode {periodLabel}: {dateRange}
-      </p>
+      <header className="flex items-center gap-4">
+        {/* eslint-disable-next-line @next/next/no-img-element -- img biasa supaya pasti termuat saat dicetak */}
+        <img
+          src="/logo.jpg"
+          alt="Logo warung"
+          width={64}
+          height={64}
+          className="rounded-full"
+        />
+        <div>
+          <h1 className="text-[20px] font-bold">Laporan Produksi</h1>
+          <p className="mt-1">
+            Periode {periodLabel}: {dateRange}
+          </p>
+        </div>
+      </header>
 
       <table className="mt-4">
         <tbody>
