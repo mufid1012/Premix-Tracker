@@ -7,6 +7,7 @@ import TopProgressBar from "@/components/report/TopProgressBar";
 import SimpleBarChart from "@/components/report/SimpleBarChart";
 import PrintReport, { fmtNumber, type ReportSection } from "@/components/report/PrintReport";
 import { SPOON_ESTIMATE_NOTE } from "@/lib/units";
+import { offsetForDate, rangeEndValue } from "@/lib/reportPeriod";
 
 type Period = "harian" | "mingguan" | "bulanan";
 
@@ -145,15 +146,31 @@ export default function LaporanPage() {
                 chevron_left
               </span>
             </button>
-            <p
-              aria-live="polite"
-              className="flex-1 flex flex-col items-center justify-center px-2 text-center"
-            >
-              <span className="font-semibold">{data?.dateRange ?? "..."}</span>
+            {/* Input tanggal transparan menutupi label: ketuk tanggal untuk membuka kalender HP */}
+            <label className="relative flex-1 flex flex-col items-center justify-center px-2 text-center cursor-pointer hover:bg-paper">
+              <span aria-live="polite" className="flex items-center gap-1 font-semibold">
+                {data?.dateRange ?? "..."}
+                <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
+                  calendar_month
+                </span>
+              </span>
               <span className="label-mono text-[11px]">
                 {offset === 0 ? `${periodNoun} ini` : `${offset} ${periodNoun} lalu`}
               </span>
-            </p>
+              <input
+                type="date"
+                aria-label="Pilih tanggal laporan"
+                value={data ? rangeEndValue(period, offset) : ""}
+                max={data ? rangeEndValue(period, 0) : undefined}
+                onClick={(e) => e.currentTarget.showPicker?.()}
+                onChange={(e) => {
+                  if (!e.target.value) return;
+                  const [y, m, d] = e.target.value.split("-").map(Number);
+                  setOffset(offsetForDate(period, new Date(y, m - 1, d)));
+                }}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </label>
             <button
               type="button"
               onClick={() => setOffset((o) => Math.max(o - 1, 0))}
