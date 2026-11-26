@@ -1,151 +1,58 @@
 ---
-name: Warung Modern Production System
+name: Produksi Dapur, lembar bergaris
+reference: https://player.style (diminta pemilik pada 18 Nov 2026 sebagai acuan langsung)
+dial: ENERGY 2 / RHYTHM 2 / MOTION 1
 colors:
-  surface: '#fdf9f4'
-  surface-dim: '#ddd9d5'
-  surface-bright: '#fdf9f4'
-  surface-container-lowest: '#ffffff'
-  surface-container-low: '#f7f3ee'
-  surface-container: '#f1ede8'
-  surface-container-high: '#ebe8e3'
-  surface-container-highest: '#e6e2dd'
-  on-surface: '#1c1c19'
-  on-surface-variant: '#42493e'
-  inverse-surface: '#31302d'
-  inverse-on-surface: '#f4f0eb'
-  outline: '#72796e'
-  outline-variant: '#c2c9bb'
-  surface-tint: '#3b6934'
-  primary: '#154212'
-  on-primary: '#ffffff'
-  primary-container: '#2d5a27'
-  on-primary-container: '#9dd090'
-  inverse-primary: '#a1d494'
-  secondary: '#7c5800'
-  on-secondary: '#ffffff'
-  secondary-container: '#feb700'
-  on-secondary-container: '#6b4b00'
-  tertiary: '#602900'
-  on-tertiary: '#ffffff'
-  tertiary-container: '#813d0a'
-  on-tertiary-container: '#ffb183'
-  error: '#ba1a1a'
-  on-error: '#ffffff'
-  error-container: '#ffdad6'
-  on-error-container: '#93000a'
-  primary-fixed: '#bcf0ae'
-  primary-fixed-dim: '#a1d494'
-  on-primary-fixed: '#002201'
-  on-primary-fixed-variant: '#23501e'
-  secondary-fixed: '#ffdea8'
-  secondary-fixed-dim: '#ffba20'
-  on-secondary-fixed: '#271900'
-  on-secondary-fixed-variant: '#5e4200'
-  tertiary-fixed: '#ffdbc9'
-  tertiary-fixed-dim: '#ffb68c'
-  on-tertiary-fixed: '#321200'
-  on-tertiary-fixed-variant: '#753401'
-  background: '#fdf9f4'
-  on-background: '#1c1c19'
-  surface-variant: '#e6e2dd'
+  paper: '#e2e4dd'
+  panel: '#f4f6f4'
+  white: '#ffffff'
+  ink: '#000000'
+  ink-soft: '#565e67'
+  line: '#cfd4cc'
+  line-strong: '#828c97'
+  band: '#242628'
+  accent: '#0067df'
+  danger: '#ba1a1a'
+  danger-soft: '#fdecea'
 typography:
-  display-lg:
-    fontFamily: Plus Jakarta Sans
-    fontSize: 40px
-    fontWeight: '800'
-    lineHeight: 48px
-    letterSpacing: -0.02em
-  headline-md:
-    fontFamily: Plus Jakarta Sans
-    fontSize: 24px
-    fontWeight: '700'
-    lineHeight: 32px
-  body-lg:
-    fontFamily: Plus Jakarta Sans
-    fontSize: 18px
-    fontWeight: '500'
-    lineHeight: 28px
-  body-md:
-    fontFamily: Plus Jakarta Sans
-    fontSize: 16px
-    fontWeight: '400'
-    lineHeight: 24px
-  label-bold:
-    fontFamily: Plus Jakarta Sans
-    fontSize: 14px
-    fontWeight: '700'
-    lineHeight: 20px
-rounded:
-  sm: 0.25rem
-  DEFAULT: 0.5rem
-  md: 0.75rem
-  lg: 1rem
-  xl: 1.5rem
-  full: 9999px
-spacing:
-  base: 8px
-  xs: 4px
-  sm: 12px
-  md: 20px
-  lg: 32px
-  xl: 48px
-  touch-target: 56px
+  display: Tektur 500, huruf kapital, letter-spacing 0.02em, 40px ponsel / 64px desktop
+  body: Inter 400/600, 16px
+  label: JetBrains Mono 400, huruf kapital, 13-14px, tanpa letter-spacing tambahan
+radius:
+  default: 0
+  pill: 9999px (hanya kolom pencarian)
 ---
 
-## Brand & Style
+## Arah
 
-This design system blends the communal, welcoming essence of a traditional Indonesian *Warung* with the precision of a modern kitchen production environment. The personality is grounded, reliable, and "guyub" (neighborly), yet highly organized. 
+Atas permintaan pemilik, tampilan mengikuti bahasa visual player.style: abu-abu hangat, bingkai garis tipis, pita label gelap, dan huruf judul persegi. Font asli acuan (Rotonto, Aeonik) berlisensi komersial, jadi diganti Tektur dan Inter. Logo, nama, dan materi merek Mux tidak dipakai; nama aplikasi ditulis sebagai teks.
 
-The design style utilizes **Modern Tactile** principles. It avoids cold, clinical minimalism in favor of a "warm utility" aesthetic. Elements feel physical and substantial—reminiscent of thick wooden tabletops and sturdy ceramic plates—to provide clear visual affordances in high-pressure kitchen settings. The emotional response should be one of "Ketenangan di Tengah Kesibukan" (Calm amidst the hustle), ensuring kitchen staff feel supported by their tools rather than overwhelmed by them.
+Aplikasi ini lembar log produksi untuk staf dapur, dipakai di ponsel dan tablet di dapur yang terang. Tema terang tetap (tanpa mode gelap) karena itu yang paling terbaca di kondisi tersebut dan memang bahasa visual acuannya.
 
-## Colors
+## Alasan tiap keputusan
 
-The palette is rooted in the "Earthy and Appetizing" spectrum. 
+- **Warna:** netral menanggung struktur; biru `accent` hanya untuk aksi utama halaman (Selesaikan Sesi), angka penghitung yang sudah terisi, batang puncak di grafik, dan cincin fokus.
+- **Tata letak:** satu kolom berbingkai garis vertikal (`.frame`), tiap bagian dipisah garis horizontal selebar layar (`.row`). Halaman terbaca seperti lembar log bergaris; ini motif identitasnya.
+- **Dua tingkat garis:** `line` (abu-abu muda) untuk semua pemisah di dalam isi, `line-strong` hanya untuk bingkai luar, kolom isian, chip, tombol bergaris, dan batang grafik. Diubah 18 Nov 2026 karena garis gelap di mana-mana terasa melelahkan.
+- **Pita gelap (`.band`):** hanya di halaman yang membagi data per kelompok (Laporan, Riwayat). Halaman lain memakai judul teks biasa supaya tidak terlalu banyak blok hitam.
+- **Tektur:** judul halaman dan angka besar, bentuk persegi bersudut tumpul paling mirip huruf acuan dan tetap terbaca dari jarak meja dapur.
+- **Inter:** teks isi, netral dan jelas pada ukuran 16px.
+- **JetBrains Mono kapital:** label, navigasi, tombol; meniru label acuan dan membedakan label dari data.
+- **Sudut 0:** semua kontrol dan panel persegi agar sejalan dengan garis bingkai. Satu-satunya pengecualian kolom pencarian berbentuk pil, mengikuti acuan dan menandai titik awal pencarian.
+- **Grid bergaris (`.ruled-grid`), bukan kartu melayang:** sel dipisah garis tipis, tanpa bayangan. Bayangan tidak dipakai sama sekali kecuali backdrop modal.
+- **Spasi:** basis 4px; padding sel 16-20px di ponsel, 24-32px di desktop. Garis, bukan jarak lebar, yang memisahkan kelompok.
+- **Ikon:** Material Symbols Outlined, hanya bila menjelaskan isinya (dashboard, resep, kalender, unduh). Selalu `aria-hidden` karena teks di sebelahnya sudah memberi nama.
+- **Gerak (MOTION 1):** hanya perubahan warna saat hover dan lembar modal/toast yang naik dari bawah. Dimatikan bila `prefers-reduced-motion`.
 
-- **Primary (Hijau Daun):** A deep earthy green (#2D5A27) used for primary actions and headers, symbolizing freshness and stability.
-- **Secondary (Kuning Kunyit):** A vibrant warm yellow (#FFB800) used for alerts, high-priority status indicators, and call-to-actions that need to pop against steam or low light.
-- **Neutrals (Kayu & Kertas):** The background uses a soft cream-white (#F9F5F0) instead of pure white to reduce eye strain. Accents use wood-toned browns to provide structure and warmth.
-- **High Contrast:** All functional text must maintain a minimum 7:1 contrast ratio against backgrounds to ensure legibility through kitchen steam or on grease-smudged screens.
+## Komponen
 
-## Typography
+- **Tombol:** `.btn` + varian. `btn-dark` untuk aksi utama biasa, `btn-accent` untuk satu aksi kunci per halaman, `btn-line` untuk aksi sekunder, `btn-danger` untuk hapus. Tinggi minimum 48px (56px untuk penghitung di halaman Input).
+- **Kolom isian:** `.field`, latar putih, garis `line`, label `label-mono` yang terlihat di atasnya.
+- **Chip kategori:** `.chip` persegi; terpilih memakai `aria-pressed` dan latar `band`.
+- **Navigasi:** desktop di TopAppBar sebagai sel-sel bergaris; ponsel di bilah bawah 4 sel. Halaman aktif berlatar `band`.
+- **Modal:** `<dialog>` bawaan (Escape dan perangkap fokus dari browser). Lembar bawah di ponsel, di tengah di desktop.
+- **Status data:** setiap tampilan data punya keadaan memuat, kosong, dan gagal.
 
-The design system utilizes **Plus Jakarta Sans** for its friendly yet geometric clarity. In a kitchen environment, readability from a distance is paramount.
+## Bahasa
 
-- **Scale:** Type sizes are oversized compared to standard SaaS apps to accommodate "at-a-glance" reading.
-- **Weight:** Headlines use Extra Bold (800) to create a clear hierarchy.
-- **Language:** All microcopy should be in Indonesian, using clear and direct terminology (e.g., "Selesai", "Sedang Dimasak", "Antrean").
-
-## Layout & Spacing
-
-This design system uses a **Fluid Grid** with generous safe zones. 
-
-- **Touch Targets:** A strict minimum of 56px for all interactive elements to support "fat-finger" interactions in fast-paced environments.
-- **Rhythm:** An 8px base unit is used, but layout margins are increased to 24px (Mobile) or 32px (Tablet) to prevent content from feeling cramped near the bezel.
-- **Groupings:** Items are grouped into clear "Station" blocks with wide gutters (20px+) to ensure no accidental taps occur between different orders.
-
-## Elevation & Depth
-
-Hierarchy is established through **Tonal Layers** and **Subtle Tactility**.
-
-- **Surfaces:** Main content lives on "Lapis Bawah" (Base Layer) in cream. Active cards or modals sit on "Lapis Atas" (Top Layer) which is pure white with a subtle 1px border in a light wood tone.
-- **Shadows:** Use "Soft-Press" shadows—low-offset, highly diffused shadows with a slight brown tint (#4A321F at 10% opacity) to make cards feel like physical objects on a counter.
-- **Active State:** When pressed, buttons should visually "sink" (reduce elevation and darken slightly) to provide immediate tactile feedback to the user.
-
-## Shapes
-
-The shape language is **Rounded and Approachable**. 
-
-- **Corner Radius:** Standard components use a 0.5rem (8px) radius. Large containers and cards use 1rem (16px).
-- **Visual Metaphor:** Avoid sharp 90-degree angles to maintain the "Warung" warmth and to signify that the app is easy to navigate. 
-- **Buttons:** Primary buttons use the `rounded-lg` (16px) or full pill shape to distinguish them clearly from informational cards.
-
-## Components
-
-- **Tombol (Buttons):** High-profile with thick padding. Primary buttons use Hijau Daun with white text. Secondary buttons use a thick 2px border in wood-tone brown.
-- **Kartu Pesanan (Order Cards):** The primary unit of the app. Features a thick color-coded top border (Kuning for 'Urgent', Hijau for 'Normal'). Large, bold order numbers in the top right.
-- **Status Chips:** Small, high-contrast badges for labels like "Pedas", "Bungkus", or "Alergi". These use the Secondary Kuning Kunyit background with dark text.
-- **Input Fields:** Large tap areas with 16px internal padding. Focus states use a 3px Kuning Kunyit glow to ensure the user knows exactly where they are typing.
-- **Checkbox/Radio:** Oversized (24px x 24px) to ensure accuracy even if the user's hands are wet or busy.
-- **Kitchen-Specific Components:** 
-    - **Progress Bar:** A "Bilah Masak" that grows in Hijau Daun to show how close a dish is to completion.
-    - **Quick-Action Footer:** A sticky bottom bar with large icons for "Bantuan" (Help) and "Selesaikan Semua" (Finish All).
+Semua teks antarmuka dalam bahasa Indonesia, langsung dan spesifik ("Selesaikan Sesi", "Unduh Laporan (CSV)"). Tanpa tanda pisah panjang; pakai koma, titik dua, atau tanda kurung.

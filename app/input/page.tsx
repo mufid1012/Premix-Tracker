@@ -1,53 +1,71 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useRef, useSyncExternalStore } from "react";
+import Link from "next/link";
 import ProductionCard from "@/components/production/ProductionCard";
 import SessionFooter from "@/components/production/SessionFooter";
+import CategoryFilter from "@/components/recipe/CategoryFilter";
+import SearchField from "@/components/recipe/SearchField";
+import { useRecipeList } from "@/components/recipe/useRecipeList";
+import { readDraft, writeDraft, type Counts } from "@/lib/draft";
 
-interface Category {
-  id: number;
-  name: string;
-}
+type Toast = {
+  ok: boolean;
+  text: string;
+  /** Sesi yang baru disimpan; ada selama tombol Batalkan masih ditawarkan */
+  undo?: { sessionId: number; counts: Counts };
+};
+
+// false saat render server dan hidrasi, true setelahnya. Bagian yang
+// bergantung pada draf di localStorage baru tampil setelah ini true.
+const noopSubscribe = () => () => {};
+const useIsClient = () => useSyncExternalStore(noopSubscribe, () => true, () => false);
+
+const formatDraftTime = (iso: string) => {
+  const d = new Date(iso);
+  const sameDay = d.toDateString() === new Date().toDateString();
+  return sameDay
+    ? `hari ini pukul ${d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}`
+    : d.toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+};
 
 interface Recipe {
   id: number;
   name: string;
-  standardBatchKg: number;
-  unit: string;
-  isUrgent: boolean;
-  category: Category;
 }
 
 export default function InputPage() {
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [activeCategory, setActiveCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [batchCounts, setBatchCounts] = useState<Record<number, number>>({});
-  const [loading, setLoading] = useState(true);
+  const {
+    recipes,
+    categories,
+    activeCategory,
+    setActiveCategory,
+    searchQuery,
+    setSearchQuery,
+    loading,
+    stale,
+    loadError,
+  } = useRecipeList<Recipe>({ sort: "popular" });
+  const isClient = useIsClient();
+  // Draf dibaca sekali saat halaman dibuka (di server selalu kosong)
+  const [initialDraft] = useState(() => (typeof window === "undefined" ? null : readDraft()));
+  const [batchCounts, setBatchCounts] = useState<Counts>(initialDraft?.counts ?? {});
+  const [restoredAt, setRestoredAt] = useState(initialDraft?.updatedAt ?? null);
   const [submitting, setSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [undoing, setUndoing] = useState(false);
+  const [toast, setToast] = useState<Toast | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const lastWritten = useRef(JSON.stringify(initialDraft?.counts ?? {}));
 
-  const fetchRecipes = useCallback(async () => {
-    const params = new URLSearchParams();
-    if (activeCategory !== "all") params.set("category", activeCategory);
-    if (searchQuery.trim()) params.set("search", searchQuery.trim());
-    const res = await fetch(`/api/recipes?${params}`);
-    const data = await res.json();
-    setRecipes(data);
-    setLoading(false);
-  }, [activeCategory, searchQuery]);
-
+  // Simpan draf setiap kali hitungan berubah
   useEffect(() => {
-    fetch("/api/categories")
-      .then((r) => r.json())
-      .then(setCategories);
-  }, []);
+    const serialized = JSON.stringify(batchCounts);
+    if (serialized === lastWritten.current) return;
+    lastWritten.current = serialized;
+    writeDraft(batchCounts);
+  }, [batchCounts]);
 
-  useEffect(() => {
-    setLoading(true);
-    fetchRecipes();
-  }, [fetchRecipes]);
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
 
   const handleIncrement = (recipeId: number) => {
     setBatchCounts((prev) => ({
@@ -63,10 +81,37 @@ export default function InputPage() {
     }));
   };
 
-  const totalBatch = Object.values(batchCounts).reduce(
-    (sum, v) => sum + v,
-    0
-  );
+  const totalBatch = Object.values(batchCounts).reduce((sum, v) => sum + v, 0);
+
+  const showToast = (next: Toast, ms: number) => {
+    clearTimeout(toastTimer.current);
+    setToast(next);
+    toastTimer.current = setTimeout(() => setToast(null), ms);
+  };
+
+  const clearDraft = () => {
+    setBatchCounts({});
+    setRestoredAt(null);
+  };
+
+  // Hapus sesi yang baru disimpan dan kembalikan hitungannya untuk diperbaiki
+  const handleUndo = async (sessionId: number, counts: Counts) => {
+    setUndoing(true);
+    try {
+      const res = await fetch(`/api/productions/${sessionId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setBatchCounts((prev) => {
+        const merged = { ...prev };
+        for (const [id, n] of Object.entries(counts)) merged[Number(id)] = (merged[Number(id)] || 0) + n;
+        return merged;
+      });
+      showToast({ ok: true, text: "Sesi dibatalkan. Hitungannya dikembalikan untuk diperbaiki." }, 5000);
+    } catch {
+      showToast({ ok: false, text: "Gagal membatalkan sesi. Hapus lewat Riwayat Sesi." }, 6000);
+    } finally {
+      setUndoing(false);
+    }
+  };
 
   const handleFinishSession = async () => {
     const entries = Object.entries(batchCounts)
@@ -87,134 +132,149 @@ export default function InputPage() {
         body: JSON.stringify({ entries }),
       });
 
-      if (res.ok) {
-        const result = await res.json();
-        setSuccessMessage(
-          `✅ Sesi berhasil disimpan! ${result.totalBatch} batch, ${result.totalBahanKg} kg bahan terpakai.`
-        );
-        setBatchCounts({});
-        setTimeout(() => setSuccessMessage(null), 5000);
-      }
+      // Respons 4xx/5xx juga harus memunculkan pesan gagal (lihat catch)
+      if (!res.ok) throw new Error();
+      const result = await res.json();
+      // Tombol Batalkan ditawarkan 10 detik, cukup untuk menyadari salah tekan
+      showToast(
+        {
+          ok: true,
+          text: `Sesi tersimpan: ${result.totalBatch} resep, ${result.totalBahanKg} kg bahan terpakai.`,
+          undo: { sessionId: result.sessionId, counts: batchCounts },
+        },
+        10000
+      );
+      clearDraft();
     } catch {
-      setSuccessMessage("❌ Gagal menyimpan sesi. Coba lagi.");
-      setTimeout(() => setSuccessMessage(null), 3000);
+      showToast({ ok: false, text: "Gagal menyimpan sesi. Hitungan tetap tersimpan, coba lagi." }, 5000);
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="px-[20px] md:px-[32px] max-w-7xl mx-auto pb-[140px] md:pb-[120px]">
-      {/* Search and Category Tabs — sticky below TopAppBar */}
-      <section className="sticky top-[64px] bg-background z-30 py-4 -mx-[20px] px-[20px] md:mx-0 md:px-0 space-y-4">
-        {/* Search Bar */}
-        <div className="relative w-full">
-          <span className="material-symbols-outlined absolute left-[12px] top-1/2 -translate-y-1/2 text-outline">
-            search
-          </span>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari resep..."
-            className="w-full h-[56px] pl-[44px] pr-[12px] rounded-lg bg-surface-container-high border-2 border-surface-container-high focus:border-secondary-container focus:bg-surface-container-lowest focus:ring-0 outline-none text-body-md font-[400] transition-all duration-200 shadow-[inset_0_2px_4px_rgba(74,50,31,0.02)]"
-          />
-        </div>
-
-        {/* Category Tabs */}
-        <div className="flex overflow-x-auto no-scrollbar gap-[12px] pb-2">
-          <button
-            onClick={() => setActiveCategory("all")}
-            className={`
-              shrink-0 px-6 py-3 rounded-full font-[700] text-label-bold
-              transition-transform active:scale-95
-              ${
-                activeCategory === "all"
-                  ? "bg-primary text-on-primary shadow-soft-press"
-                  : "bg-surface-container text-on-surface-variant shadow-soft-press border-2 border-transparent hover:border-outline-variant"
-              }
-            `}
-          >
-            Semua
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(String(cat.id))}
-              className={`
-                shrink-0 px-6 py-3 rounded-full font-[700] text-label-bold
-                transition-transform active:scale-95
-                ${
-                  activeCategory === String(cat.id)
-                    ? "bg-primary text-on-primary shadow-soft-press"
-                    : "bg-surface-container text-on-surface-variant shadow-soft-press border-2 border-transparent hover:border-outline-variant"
-                }
-              `}
-            >
-              {cat.name}
-            </button>
-          ))}
+    <>
+      <section className="row">
+        <div className="frame px-4 py-8 md:py-12 text-center">
+          <h1 className="h-display">Input Produksi</h1>
+          <p className="mt-3 text-ink-soft">
+            Tambah jumlah tiap resep yang selesai diolah, lalu simpan sesinya.
+          </p>
+          <Link href="/riwayat" className="btn btn-line mt-6">
+            <span aria-hidden="true" className="material-symbols-outlined">
+              history
+            </span>
+            Riwayat Sesi
+          </Link>
         </div>
       </section>
 
-      {/* Success Toast */}
-      {successMessage && (
-        <div className="fixed top-20 left-0 right-0 mx-[20px] z-[70] animate-slide-up">
-          <div className="bg-primary-container text-on-primary-container rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.25)] px-[20px] py-[16px] md:max-w-sm md:mx-auto">
-            <p className="text-body-md font-[700] text-center">
-              {successMessage}
+      {isClient && restoredAt && totalBatch > 0 && (
+        <section className="row">
+          <div className="frame px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3 bg-white">
+            <p className="flex-1">
+              <span className="font-semibold">Hitungan belum disimpan dipulihkan</span>
+              <span className="text-ink-soft"> (terakhir diubah {formatDraftTime(restoredAt)}).</span>
             </p>
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm("Kosongkan semua hitungan yang belum disimpan?")) clearDraft();
+              }}
+              className="btn btn-line shrink-0"
+            >
+              Kosongkan
+            </button>
           </div>
-        </div>
-      )}
-
-      {/* Loading */}
-      {loading && (
-        <div className="text-center py-[48px]">
-          <div className="inline-block w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="mt-[12px] text-body-md text-on-surface-variant">
-            Memuat resep...
-          </p>
-        </div>
-      )}
-
-      {/* Recipe Cards Grid */}
-      {!loading && (
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[20px] pt-[12px] stagger-children">
-          {recipes.map((recipe) => (
-            <ProductionCard
-              key={recipe.id}
-              id={recipe.id}
-              name={recipe.name}
-              batchCount={batchCounts[recipe.id] || 0}
-              onIncrement={handleIncrement}
-              onDecrement={handleDecrement}
-            />
-          ))}
         </section>
       )}
 
-      {/* Empty State */}
-      {!loading && recipes.length === 0 && (
-        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-[32px] shadow-soft-press text-center">
-          <span className="material-symbols-outlined text-[48px] text-outline mb-[12px]">
-            restaurant
-          </span>
-          <p className="text-body-lg font-[500] text-on-surface">
-            Belum ada resep
-          </p>
-          <p className="text-body-md text-on-surface-variant">
-            Buat resep terlebih dahulu di halaman Manajemen Resep.
-          </p>
+      <section className="row sticky top-16 z-30 bg-paper">
+        <div className="frame p-4 space-y-3">
+          <SearchField id="cari-resep-input" value={searchQuery} onChange={setSearchQuery} />
+          <CategoryFilter
+            categories={categories}
+            activeId={activeCategory}
+            onSelect={setActiveCategory}
+          />
+        </div>
+      </section>
+
+      {toast && (
+        <div
+          role={toast.ok ? "status" : "alert"}
+          className={`fixed top-20 inset-x-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[28rem] z-[70] animate-slide-up flex items-center gap-3 px-5 py-3 font-semibold ${
+            toast.ok ? "bg-band text-white" : "bg-danger-soft text-danger border border-danger"
+          }`}
+        >
+          <p className="flex-1 py-1">{toast.text}</p>
+          {toast.undo && (
+            <button
+              type="button"
+              disabled={undoing}
+              onClick={() => handleUndo(toast.undo!.sessionId, toast.undo!.counts)}
+              className="btn shrink-0 bg-white text-ink hover:bg-paper active:bg-panel"
+            >
+              {undoing ? "..." : "Batalkan"}
+            </button>
+          )}
         </div>
       )}
 
-      {/* Session Footer */}
+      {loading && (
+        <section className="row">
+          <p role="status" className="frame px-4 py-12 text-center label-mono">
+            Memuat resep...
+          </p>
+        </section>
+      )}
+
+      {!loading && recipes.length > 0 && (
+        <section className="row" aria-label="Daftar resep" aria-busy={stale}>
+          <div className="frame ruled-grid ruled-grid-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {recipes.map((recipe) => (
+              <ProductionCard
+                key={recipe.id}
+                id={recipe.id}
+                name={recipe.name}
+                batchCount={batchCounts[recipe.id] || 0}
+                onIncrement={handleIncrement}
+                onDecrement={handleDecrement}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!loading && !stale && recipes.length === 0 && (
+        <section className="row">
+          <div className="frame px-4 py-12 text-center">
+            {loadError ? (
+              <p role="alert" className="text-danger">
+                Gagal memuat resep. Muat ulang halaman untuk mencoba lagi.
+              </p>
+            ) : searchQuery.trim() || activeCategory !== "all" ? (
+              <p className="text-ink-soft">Tidak ada resep yang cocok dengan filter ini.</p>
+            ) : (
+              <>
+                <p className="text-[18px] font-semibold">Belum ada resep</p>
+                <p className="mt-1 text-ink-soft">
+                  Buat resep terlebih dahulu di halaman Resep.
+                </p>
+              </>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Ruang agar footer sesi tidak menutupi kartu terakhir */}
+      {isClient && totalBatch > 0 && <div aria-hidden="true" className="frame h-24" />}
+
       <SessionFooter
-        totalBatch={totalBatch}
+        totalBatch={isClient ? totalBatch : 0}
         onFinishSession={handleFinishSession}
         submitting={submitting}
       />
-    </div>
+    </>
   );
 }

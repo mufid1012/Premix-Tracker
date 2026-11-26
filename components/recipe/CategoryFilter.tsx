@@ -1,51 +1,34 @@
 "use client";
 
 interface CategoryFilterProps {
-  categories: Array<{ id: number; name: string; icon: string | null }>;
+  categories: Array<{ id: number; name: string }>;
   activeId: string;
   onSelect: (id: string) => void;
 }
 
+/** Baris chip kategori. Dipakai di halaman Input dan Resep. */
 export default function CategoryFilter({
   categories,
   activeId,
   onSelect,
 }: CategoryFilterProps) {
-  return (
-    <div className="flex overflow-x-auto pb-[12px] mb-[20px] gap-[12px] no-scrollbar scroll-smooth">
-      {/* "Semua" tab */}
-      <button
-        onClick={() => onSelect("all")}
-        className={`
-          shrink-0 h-[56px] px-[20px] rounded-full
-          font-[700] text-label-bold
-          transition-all active:scale-95
-          ${
-            activeId === "all"
-              ? "bg-secondary-container text-on-secondary-container shadow-[0_2px_4px_rgba(74,50,31,0.1)]"
-              : "bg-surface-container-high text-on-surface-variant border border-outline-variant hover:bg-surface-variant"
-          }
-        `}
-      >
-        Semua
-      </button>
+  const options = [{ id: "all", name: "Semua" }, ...categories.map((c) => ({ id: String(c.id), name: c.name }))];
 
-      {categories.map((cat) => (
+  return (
+    <div
+      role="group"
+      aria-label="Filter kategori"
+      className="flex overflow-x-auto no-scrollbar gap-2"
+    >
+      {options.map((opt) => (
         <button
-          key={cat.id}
-          onClick={() => onSelect(String(cat.id))}
-          className={`
-            shrink-0 h-[56px] px-[20px] rounded-full
-            font-[700] text-label-bold
-            transition-all active:scale-95
-            ${
-              activeId === String(cat.id)
-                ? "bg-secondary-container text-on-secondary-container shadow-[0_2px_4px_rgba(74,50,31,0.1)]"
-                : "bg-surface-container-high text-on-surface-variant border border-outline-variant hover:bg-surface-variant"
-            }
-          `}
+          key={opt.id}
+          type="button"
+          onClick={() => onSelect(opt.id)}
+          aria-pressed={activeId === opt.id}
+          className="chip"
         >
-          {cat.name}
+          {opt.name}
         </button>
       ))}
     </div>

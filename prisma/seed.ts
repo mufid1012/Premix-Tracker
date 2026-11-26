@@ -44,7 +44,7 @@ async function main() {
 
   const [bumbuDasar, tepungBumbu] = categories;
 
-  // --- Recipe 1: Bumbu Merah Dasar (from resep.html) ---
+  // --- Recipe 1: Bumbu Merah Dasar ---
   await prisma.recipe.create({
     data: {
       name: "Bumbu Merah Dasar",
@@ -53,7 +53,6 @@ async function main() {
         "Digunakan untuk dasar balado, sambal goreng, dan bumbu rendang tahap awal.",
       standardBatchKg: 5,
       unit: "Kg",
-      isUrgent: false,
       ingredients: {
         create: [
           {
@@ -91,7 +90,7 @@ async function main() {
     },
   });
 
-  // --- Recipe 2: Campuran Tepung Kriuk (from resep.html) ---
+  // --- Recipe 2: Campuran Tepung Kriuk ---
   await prisma.recipe.create({
     data: {
       name: "Campuran Tepung Kriuk",
@@ -100,7 +99,6 @@ async function main() {
         "Tepung pelapis standar untuk ayam goreng dan mendoan agar tahan lama.",
       standardBatchKg: 10,
       unit: "Kg",
-      isUrgent: false,
       ingredients: {
         create: [
           {
@@ -138,7 +136,7 @@ async function main() {
     },
   });
 
-  // --- Recipe 3: Bumbu Kuning (from input.html) ---
+  // --- Recipe 3: Bumbu Kuning ---
   await prisma.recipe.create({
     data: {
       name: "Bumbu Kuning",
@@ -146,7 +144,6 @@ async function main() {
       description: "Bumbu dasar kuning untuk gulai, opor, dan soto.",
       standardBatchKg: 5,
       unit: "Kg",
-      isUrgent: true,
       ingredients: {
         create: [
           {
@@ -184,7 +181,7 @@ async function main() {
     },
   });
 
-  // --- Recipe 4: Bumbu Merah (from input.html) ---
+  // --- Recipe 4: Bumbu Merah ---
   await prisma.recipe.create({
     data: {
       name: "Bumbu Merah",
@@ -192,7 +189,6 @@ async function main() {
       description: "Bumbu merah serbaguna untuk nasi goreng dan mie goreng.",
       standardBatchKg: 3,
       unit: "Kg",
-      isUrgent: false,
       ingredients: {
         create: [
           {
@@ -230,7 +226,7 @@ async function main() {
     },
   });
 
-  // --- Recipe 5: Bumbu Putih (from input.html) ---
+  // --- Recipe 5: Bumbu Putih ---
   await prisma.recipe.create({
     data: {
       name: "Bumbu Putih",
@@ -238,7 +234,6 @@ async function main() {
       description: "Bumbu putih dasar untuk sop, bakso, dan tumisan ringan.",
       standardBatchKg: 4,
       unit: "Kg",
-      isUrgent: false,
       ingredients: {
         create: [
           {
@@ -277,17 +272,29 @@ async function main() {
   });
 
   // --- Sample Production Session (for dashboard data) ---
+  const sampleRecipes = await prisma.recipe.findMany({
+    take: 3,
+    orderBy: { id: "asc" },
+    include: { ingredients: true },
+  });
+  const sampleBatchCounts = [3, 2, 2];
+
   await prisma.productionSession.create({
     data: {
-      sessionDate: new Date(),
-      status: "completed",
       completedAt: new Date(),
       entries: {
-        create: [
-          { recipeId: 1, batchCount: 3 },
-          { recipeId: 2, batchCount: 2 },
-          { recipeId: 3, batchCount: 2 },
-        ],
+        create: sampleRecipes.map((r, i) => ({
+          recipeId: r.id,
+          recipeName: r.name,
+          batchCount: sampleBatchCounts[i],
+          ingredients: {
+            create: r.ingredients.map((ing) => ({
+              ingredientName: ing.ingredientName,
+              quantity: ing.quantity,
+              unit: ing.unit,
+            })),
+          },
+        })),
       },
     },
   });

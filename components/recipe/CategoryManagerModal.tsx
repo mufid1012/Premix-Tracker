@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Modal from "@/components/Modal";
 
 interface Category {
   id: number;
@@ -10,15 +11,26 @@ interface Category {
 
 interface CategoryManagerModalProps {
   categories: Category[];
-  isOpen: boolean;
   onClose: () => void;
   onAddCategory: (name: string, icon: string) => Promise<void>;
   onDeleteCategory: (id: number) => Promise<void>;
 }
 
+const ICONS = [
+  "category", "restaurant_menu", "fastfood", "local_pizza",
+  "local_cafe", "set_meal", "soup_kitchen", "bakery_dining",
+  "icecream", "liquor", "kitchen", "blender", "egg",
+  "water_drop", "grass", "eco", "scale", "inventory_2",
+  "lunch_dining", "ramen_dining", "takeout_dining", "local_dining",
+  "brunch_dining", "rice_bowl", "cookie", "cake", "bento", "kebab_dining",
+  "coffee", "grocery",
+];
+
+const errorMessage = (err: unknown, fallback: string) =>
+  err instanceof Error && err.message ? err.message : fallback;
+
 export default function CategoryManagerModal({
   categories,
-  isOpen,
   onClose,
   onAddCategory,
   onDeleteCategory,
@@ -29,8 +41,6 @@ export default function CategoryManagerModal({
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen) return null;
-
   const handleAdd = async () => {
     if (!newCatName.trim()) return;
     setError(null);
@@ -39,147 +49,115 @@ export default function CategoryManagerModal({
       await onAddCategory(newCatName.trim(), newCatIcon);
       setNewCatName("");
       setNewCatIcon("category");
-    } catch (err: any) {
-      setError(err.message || "Gagal menambahkan kategori");
+    } catch (err) {
+      setError(errorMessage(err, "Gagal menambahkan kategori"));
     } finally {
       setAdding(false);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus kategori ini?")) return;
+    if (!confirm("Hapus kategori ini?")) return;
     setError(null);
     setDeletingId(id);
     try {
       await onDeleteCategory(id);
-    } catch (err: any) {
-      setError(err.message || "Gagal menghapus kategori");
+    } catch (err) {
+      setError(errorMessage(err, "Gagal menghapus kategori"));
     } finally {
       setDeletingId(null);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[60]">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"
-        onClick={onClose}
-      />
+    <Modal title="Kelola Kategori" onClose={onClose}>
+      {error && (
+        <p role="alert" className="p-3 bg-danger-soft text-danger border border-danger font-semibold">
+          {error}
+        </p>
+      )}
 
-      <div
-        className="
-          absolute bottom-0 left-0 right-0
-          md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2
-          bg-white rounded-t-2xl md:rounded-2xl
-          md:max-w-md md:w-[90%]
-          max-h-[85vh] overflow-y-auto
-          shadow-[0_-8px_32px_rgba(0,0,0,0.25)]
-          animate-slide-up flex flex-col
-        "
-      >
-        {/* Header */}
-        <div className="sticky top-0 bg-surface-container-lowest border-b border-outline-variant px-[20px] py-[16px] flex items-center justify-between z-10">
-          <h2 className="text-headline-md font-[700] text-on-surface">
-            Kelola Kategori
-          </h2>
-          <button
-            onClick={onClose}
-            className="w-[48px] h-[48px] rounded-full flex items-center justify-center hover:bg-surface-container-high active:scale-95 transition-all"
-          >
-            <span className="material-symbols-outlined">close</span>
-          </button>
+      <section className="border border-line bg-white p-4 space-y-4">
+        <h3 className="font-semibold">Tambah kategori baru</h3>
+        <div>
+          <label htmlFor="kategori-nama" className="label-mono block mb-2">
+            Nama kategori
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="kategori-nama"
+              type="text"
+              value={newCatName}
+              onChange={(e) => setNewCatName(e.target.value)}
+              placeholder="Contoh: Sambal"
+              className="field flex-1 min-w-0"
+            />
+            <button
+              type="button"
+              onClick={handleAdd}
+              disabled={adding || !newCatName.trim()}
+              className="btn btn-dark shrink-0"
+            >
+              {adding ? "..." : "Tambah"}
+            </button>
+          </div>
         </div>
 
-        {/* Content */}
-        <div className="p-[20px] space-y-[24px]">
-          {error && (
-            <div className="p-3 bg-error-container text-on-error-container rounded-lg text-sm font-[700] flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">error</span>
-              {error}
-            </div>
-          )}
-
-          {/* Add Form */}
-          <div className="bg-surface-container-low p-4 rounded-xl border border-outline-variant space-y-3">
-            <h3 className="font-[700] text-label-bold text-on-surface">Tambah Kategori Baru</h3>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newCatName}
-                onChange={(e) => setNewCatName(e.target.value)}
-                placeholder="Nama kategori"
-                className="flex-1 h-[48px] px-3 rounded-lg bg-white border border-outline-variant focus:border-primary outline-none"
-              />
+        <fieldset>
+          <legend className="label-mono mb-2">Ikon</legend>
+          <div className="flex flex-wrap gap-1">
+            {ICONS.map((icon) => (
               <button
-                onClick={handleAdd}
-                disabled={adding || !newCatName.trim()}
-                className="h-[48px] px-4 rounded-lg bg-primary text-on-primary font-[700] disabled:opacity-50 shrink-0"
+                key={icon}
+                type="button"
+                onClick={() => setNewCatIcon(icon)}
+                aria-label={icon.replace(/_/g, " ")}
+                aria-pressed={newCatIcon === icon}
+                className={`w-11 h-11 flex items-center justify-center border transition-colors ${
+                  newCatIcon === icon
+                    ? "bg-band border-band text-white"
+                    : "border-line text-ink hover:bg-paper"
+                }`}
               >
-                {adding ? "..." : "Tambah"}
+                <span aria-hidden="true" className="material-symbols-outlined text-[20px]">
+                  {icon}
+                </span>
               </button>
-            </div>
-            
-            <div>
-              <p className="text-[12px] font-[700] text-on-surface-variant mb-2">Pilih Ikon:</p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  "category", "restaurant_menu", "fastfood", "local_pizza", 
-                  "local_cafe", "set_meal", "soup_kitchen", "bakery_dining", 
-                  "icecream", "liquor", "kitchen", "blender", "egg", 
-                  "water_drop", "grass", "eco", "scale", "inventory_2",
-                  "lunch_dining", "ramen_dining", "takeout_dining", "local_dining",
-                  "brunch_dining", "rice_bowl", "cookie", "cake", "bento", "kebab_dining",
-                  "coffee", "grocery"
-                ].map((icon) => (
-                  <button
-                    key={icon}
-                    onClick={() => setNewCatIcon(icon)}
-                    className={`w-10 h-10 rounded-lg flex items-center justify-center border-2 transition-all ${
-                      newCatIcon === icon
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-outline-variant text-on-surface-variant hover:bg-surface-container-highest"
-                    }`}
-                    title={icon}
-                  >
-                    <span className="material-symbols-outlined text-[20px]">{icon}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* List */}
-          <div className="space-y-2">
-            <h3 className="font-[700] text-label-bold text-on-surface-variant">Kategori Tersedia</h3>
-            {categories.map((cat) => (
-              <div
-                key={cat.id}
-                className="flex items-center justify-between p-3 bg-surface-container-lowest border border-outline-variant rounded-lg"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-primary">
-                    {cat.icon || "category"}
-                  </span>
-                  <span className="font-[700] text-body-md">{cat.name}</span>
-                </div>
-                <button
-                  onClick={() => handleDelete(cat.id)}
-                  disabled={deletingId === cat.id}
-                  className="w-10 h-10 rounded-full text-error hover:bg-error-container/30 flex items-center justify-center disabled:opacity-50"
-                  title="Hapus"
-                >
-                  {deletingId === cat.id ? (
-                    <div className="w-4 h-4 border-2 border-error/30 border-t-error rounded-full animate-spin" />
-                  ) : (
-                    <span className="material-symbols-outlined text-[18px]">delete</span>
-                  )}
-                </button>
-              </div>
             ))}
           </div>
-        </div>
-      </div>
-    </div>
+        </fieldset>
+      </section>
+
+      <section>
+        <h3 className="label-mono mb-2">Kategori tersedia</h3>
+        {categories.length === 0 ? (
+          <p className="text-ink-soft">Belum ada kategori.</p>
+        ) : (
+          <ul className="border border-line bg-white divide-y divide-line">
+            {categories.map((cat) => (
+              <li key={cat.id} className="flex items-center justify-between pl-4">
+                <span className="flex items-center gap-3">
+                  <span aria-hidden="true" className="material-symbols-outlined text-ink-soft">
+                    {cat.icon || "category"}
+                  </span>
+                  <span className="font-semibold">{cat.name}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(cat.id)}
+                  disabled={deletingId === cat.id}
+                  aria-label={`Hapus kategori ${cat.name}`}
+                  className="btn btn-icon h-12 border-l border-line text-danger hover:bg-danger-soft"
+                >
+                  <span aria-hidden="true" className="material-symbols-outlined text-[20px]">
+                    {deletingId === cat.id ? "hourglass_empty" : "delete"}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </Modal>
   );
 }

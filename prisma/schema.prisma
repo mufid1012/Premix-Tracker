@@ -34,7 +34,6 @@ model Recipe {
   description     String?  @db.Text
   standardBatchKg Float    @map("standard_batch_kg")
   unit            String   @default("Kg") @db.VarChar(20)
-  isUrgent        Boolean  @default(false) @map("is_urgent")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
@@ -66,8 +65,6 @@ model RecipeIngredient {
 // ===================================================================
 model ProductionSession {
   id          Int       @id @default(autoincrement())
-  sessionDate DateTime  @default(now()) @map("session_date") @db.Date
-  status      String    @default("completed") @db.VarChar(20) // active, completed
   createdAt   DateTime  @default(now()) @map("created_at")
   completedAt DateTime? @map("completed_at")
 
@@ -82,12 +79,30 @@ model ProductionSession {
 model ProductionEntry {
   id         Int      @id @default(autoincrement())
   sessionId  Int      @map("session_id")
-  recipeId   Int      @map("recipe_id")
+  recipeId   Int?     @map("recipe_id") // null jika resepnya sudah dihapus
+  recipeName String   @map("recipe_name") @db.VarChar(200) // snapshot nama saat produksi
   batchCount Int      @map("batch_count")
   createdAt  DateTime @default(now()) @map("created_at")
 
-  session ProductionSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  recipe  Recipe             @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  session     ProductionSession           @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  recipe      Recipe?                     @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+  ingredients ProductionEntryIngredient[]
 
   @@map("production_entries")
+}
+
+// ===================================================================
+// Snapshot komposisi bahan saat produksi dicatat, supaya laporan lama
+// tidak berubah ketika resep diedit atau dihapus
+// ===================================================================
+model ProductionEntryIngredient {
+  id             Int    @id @default(autoincrement())
+  entryId        Int    @map("entry_id")
+  ingredientName String @map("ingredient_name") @db.VarChar(200)
+  quantity       Float
+  unit           String @db.VarChar(20)
+
+  entry ProductionEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@map("production_entry_ingredients")
 }

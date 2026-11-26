@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import PeriodSelector from "@/components/report/PeriodSelector";
-import StatCard from "@/components/report/StatCard";
+import MetricCard from "@/components/dashboard/MetricCard";
 import TopProgressBar from "@/components/report/TopProgressBar";
 import SimpleBarChart from "@/components/report/SimpleBarChart";
+import { SPOON_ESTIMATE_NOTE } from "@/lib/units";
 
 type Period = "harian" | "mingguan" | "bulanan";
 
@@ -21,26 +22,39 @@ interface ReportData {
 
 export default function LaporanPage() {
   const [period, setPeriod] = useState<Period>("mingguan");
+  // 0 = periode berjalan, 1 = sebelumnya, dst.
+  const [offset, setOffset] = useState(0);
   const [data, setData] = useState<ReportData | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Kunci periode yang datanya sedang tampil; beda dengan kunci aktif berarti sedang memuat
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  const key = `${period}:${offset}`;
+  const loading = loadedKey !== key;
+
+  const changePeriod = (p: Period) => {
+    setPeriod(p);
+    setOffset(0);
+  };
 
   useEffect(() => {
-    setLoading(true);
-    fetch(`/api/reports?period=${period}`)
-      .then((res) => res.json())
+    const controller = new AbortController();
+    fetch(`/api/reports?period=${period}&offset=${offset}`, { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : null))
+      .catch(() => null)
       .then((json) => {
+        if (controller.signal.aborted) return;
         setData(json);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [period]);
+        setLoadedKey(`${period}:${offset}`);
+      });
+    return () => controller.abort();
+  }, [period, offset]);
+
+  const periodNoun = { harian: "hari", mingguan: "minggu", bulanan: "bulan" }[period];
 
   const handleDownload = () => {
     if (!data) return;
 
-    // Build CSV content
     const lines = [];
-    lines.push(`Laporan Produksi - Periode: ${period.toUpperCase()}`);
+    lines.push(`Laporan Produksi - Periode: ${period.toUpperCase()} (${data.dateRange})`);
     lines.push("");
 
     lines.push("RINGKASAN");
@@ -62,99 +76,121 @@ export default function LaporanPage() {
     lines.push("Periode,Jumlah (Resep)");
     data.trendData.forEach((t) => lines.push(`${t.label},${t.value}`));
 
-    const csvContent = lines.join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `laporan_produksi_${period}.csv`);
+    link.setAttribute(
+      "download",
+      `laporan_produksi_${period}_${data.dateRange.replace(/[^0-9A-Za-z]+/g, "-")}.csv`
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="p-[20px] md:p-[32px] max-w-4xl mx-auto space-y-[24px] pb-[100px]">
-      {/* Header */}
-      <div className="mb-[32px] pt-[12px] md:pt-[32px]">
-        <h1 className="text-display-lg font-[800] tracking-[-0.02em] text-on-surface mb-[4px]">
-          Laporan Produksi
-        </h1>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <p className="text-body-md font-[400] text-on-surface-variant">
-            Ringkasan performa dan pemakaian bahan.
-          </p>
-          {data && (
-            <p className="text-label-bold font-[700] text-[#FFFFFF] bg-[#6B8E23] px-3 py-1 rounded-full w-fit">
-              <span className="material-symbols-outlined text-[14px] align-middle mr-1">calendar_today</span>
-              {data.dateRange}
-            </p>
-          )}
+    <>
+      <section className="row">
+        <div className="frame px-4 py-8 md:py-12 text-center">
+          <h1 className="h-display">Laporan Produksi</h1>
+          <p className="mt-3 text-ink-soft">Ringkasan produksi dan pemakaian bahan.</p>
         </div>
-      </div>
+      </section>
 
-      <PeriodSelector period={period} onChange={setPeriod} />
+      <section className="row">
+        <div className="frame">
+          <h2 className="band">Periode</h2>
+          <PeriodSelector period={period} onChange={changePeriod} />
+          <div className="flex items-stretch border-t border-line bg-white">
+            <button
+              type="button"
+              onClick={() => setOffset((o) => o + 1)}
+              disabled={loading}
+              aria-label={`${periodNoun} sebelumnya`}
+              className="btn btn-icon h-14 w-14 border-r border-line hover:bg-paper"
+            >
+              <span aria-hidden="true" className="material-symbols-outlined">
+                chevron_left
+              </span>
+            </button>
+            <p
+              aria-live="polite"
+              className="flex-1 flex flex-col items-center justify-center px-2 text-center"
+            >
+              <span className="font-semibold">{data?.dateRange ?? "..."}</span>
+              <span className="label-mono text-[11px]">
+                {offset === 0 ? `${periodNoun} ini` : `${offset} ${periodNoun} lalu`}
+              </span>
+            </p>
+            <button
+              type="button"
+              onClick={() => setOffset((o) => Math.max(o - 1, 0))}
+              disabled={loading || offset === 0}
+              aria-label={`${periodNoun} berikutnya`}
+              className="btn btn-icon h-14 w-14 border-l border-line hover:bg-paper"
+            >
+              <span aria-hidden="true" className="material-symbols-outlined">
+                chevron_right
+              </span>
+            </button>
+          </div>
+        </div>
+      </section>
 
       {loading ? (
-        <div className="text-center py-[48px]">
-          <div className="inline-block w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="mt-[12px] text-body-md text-on-surface-variant">
+        <section className="row">
+          <p role="status" className="frame px-4 py-12 text-center label-mono">
             Memuat laporan...
           </p>
-        </div>
+        </section>
       ) : data ? (
-        <div className="animate-slide-up space-y-[24px]">
-          {/* Summary Cards */}
-          <div className="grid grid-cols-2 gap-[16px]">
-            <StatCard
-              title="Adonan Selesai"
-              value={data.summary.totalBatch}
-              unit="Resep"
-              icon="restaurant_menu"
-            />
-            <StatCard
-              title="Bahan Terpakai"
-              value={data.summary.totalBahanKg}
-              unit="kg"
-              icon="inventory_2"
-            />
-          </div>
+        <>
+          <section className="row" aria-label="Ringkasan">
+            <div className="frame grid grid-cols-2 gap-px bg-line">
+              <MetricCard title="Adonan selesai" value={data.summary.totalBatch} unit="resep" />
+              <MetricCard
+                title="Bahan terpakai"
+                value={data.summary.totalBahanKg}
+                unit="kg"
+                note={SPOON_ESTIMATE_NOTE}
+              />
+            </div>
+          </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-[24px]">
-            {/* Top Resep */}
-            <TopProgressBar
-              title="Top Resep Terbanyak"
-              icon="bar_chart"
-              items={data.topRecipes}
-            />
+          <section className="row">
+            <div className="frame grid grid-cols-1 md:grid-cols-2 gap-px bg-line">
+              <TopProgressBar title="Resep terbanyak" items={data.topRecipes} />
+              <TopProgressBar title="Bahan terpakai" items={data.topIngredients} />
+            </div>
+          </section>
 
-            {/* Top Bahan */}
-            <TopProgressBar
-              title="Top Bahan Terpakai"
-              icon="inventory_2"
-              items={data.topIngredients}
-            />
-          </div>
+          <section className="row">
+            <div className="frame">
+              <h2 className="band">Tren produksi (resep)</h2>
+              <SimpleBarChart data={data.trendData} />
+            </div>
+          </section>
 
-          {/* Tren Produksi */}
-          <div className="md:w-1/2 md:mx-auto">
-            <SimpleBarChart title="Tren Produksi" data={data.trendData} />
-          </div>
-
-          {/* Download Button */}
-          <button
-            onClick={handleDownload}
-            className="w-full bg-primary text-on-primary font-[700] text-headline-md py-[16px] rounded-xl flex items-center justify-center gap-[12px] active:scale-95 transition-all shadow-soft-press hover:bg-primary-container hover:text-on-primary-container"
-          >
-            <span className="material-symbols-outlined">download</span>
-            Unduh Laporan (CSV)
-          </button>
-        </div>
+          <section className="row">
+            <div className="frame p-4">
+              <button type="button" onClick={handleDownload} className="btn btn-dark w-full min-h-14">
+                <span aria-hidden="true" className="material-symbols-outlined">
+                  download
+                </span>
+                Unduh Laporan (CSV)
+              </button>
+            </div>
+          </section>
+        </>
       ) : (
-        <div className="text-center py-8 text-on-surface-variant">
-          Gagal memuat laporan.
-        </div>
+        <section className="row">
+          <p role="alert" className="frame px-4 py-12 text-center text-danger">
+            Gagal memuat laporan. Muat ulang halaman untuk mencoba lagi.
+          </p>
+        </section>
       )}
-    </div>
+    </>
   );
 }

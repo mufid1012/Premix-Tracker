@@ -11,57 +11,31 @@ interface TopItem {
 
 interface TopProgressBarProps {
   title: string;
-  icon: string;
   items: TopItem[];
 }
 
-export default function TopProgressBar({ title, icon, items }: TopProgressBarProps) {
+export default function TopProgressBar({ title, items }: TopProgressBarProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  // Define bar colors corresponding to primary, secondary, tertiary containers
-  const barColors = [
-    "bg-primary",
-    "bg-secondary",
-    "bg-tertiary",
-  ];
-
   const itemsToShow = isExpanded ? items : items.slice(0, 3);
 
   return (
-    <section className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-soft-press space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-[18px] font-[700] text-on-surface leading-tight">
-          {title}
-        </h3>
-        <span
-          className="material-symbols-outlined text-secondary"
-          style={{ fontVariationSettings: "'FILL' 1" }}
-        >
-          {icon}
-        </span>
-      </div>
+    <section className="bg-white flex flex-col">
+      <h2 className="band">{title}</h2>
 
-      <div className="space-y-5">
+      <div className="p-5 space-y-5 flex-1">
         {items.length === 0 ? (
-          <p className="text-body-sm text-on-surface-variant text-center py-2">
-            Belum ada data
-          </p>
+          <p className="text-ink-soft text-center py-2">Belum ada data di periode ini.</p>
         ) : (
           itemsToShow.map((item, idx) => (
             <div key={idx} className="space-y-2">
-              <div className="flex justify-between text-xs font-[700] text-on-surface-variant">
+              <div className="flex justify-between gap-4">
                 <span>{item.name}</span>
-                <span>
+                <span className="font-mono text-[14px] shrink-0">
                   {item.value} {item.unit}
                 </span>
               </div>
-              <div className="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-1000 ease-out ${
-                    barColors[idx % barColors.length]
-                  }`}
-                  style={{ width: `${item.percentage}%` }}
-                />
+              <div className="h-2 w-full bg-paper">
+                <div className="h-full bg-band" style={{ width: `${item.percentage}%` }} />
               </div>
             </div>
           ))
@@ -70,14 +44,15 @@ export default function TopProgressBar({ title, icon, items }: TopProgressBarPro
 
       {items.length > 3 && (
         <button
+          type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full mt-4 h-[40px] text-[12px] font-[700] rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors flex items-center justify-center gap-2"
+          aria-expanded={isExpanded}
+          className="btn w-full border-t border-line hover:bg-paper"
         >
-          {isExpanded ? (
-            <>Sembunyikan <span className="material-symbols-outlined text-[16px]">expand_less</span></>
-          ) : (
-            <>Lihat Semua ({items.length}) <span className="material-symbols-outlined text-[16px]">expand_more</span></>
-          )}
+          {isExpanded ? "Sembunyikan" : `Lihat Semua (${items.length})`}
+          <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
+            {isExpanded ? "expand_less" : "expand_more"}
+          </span>
         </button>
       )}
     </section>

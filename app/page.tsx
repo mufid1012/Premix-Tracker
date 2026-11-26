@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import MetricCard from "@/components/dashboard/MetricCard";
 import TrendChart from "@/components/dashboard/TrendChart";
+import { SPOON_ESTIMATE_NOTE } from "@/lib/units";
 
 interface DashboardData {
   totalBatchToday: number;
   batchTrend: number;
   totalBahanToday: number;
-  bahanTrend: number;
   weeklyTrend: Array<{
     day: string;
     value: number;
@@ -23,7 +23,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetch("/api/dashboard")
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
         setData(json);
         setLoading(false);
@@ -32,109 +32,81 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="p-[20px] md:p-[32px] max-w-4xl mx-auto space-y-[32px]">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-[20px]">
-        <div>
-          <h2 className="text-headline-md font-[700] text-on-surface mb-[4px]">
-            Ringkasan Hari Ini
-          </h2>
-          <p className="text-body-md font-[400] text-on-surface-variant">
-            Pantau produksi dan bahan baku.
+    <>
+      <section className="row">
+        <div className="frame px-4 py-12 md:py-20 text-center">
+          <h1 className="h-display">Ringkasan Hari Ini</h1>
+          <p className="mt-4 text-[16px] text-ink-soft">
+            Pantau produksi dan bahan baku yang terpakai hari ini.
           </p>
-        </div>
-        <Link
-          href="/input"
-          className="
-            bg-primary text-on-primary
-            font-[700] text-label-bold
-            px-[32px] py-[12px] rounded-lg
-            active-press
-            flex items-center justify-center gap-[8px]
-            min-h-[56px] w-full md:w-auto
-            shadow-soft-press
-            transition-transform
-          "
-        >
-          <span
-            className="material-symbols-outlined"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            add
-          </span>
-          Input Cepat
-        </Link>
-      </div>
-
-      {/* Loading State */}
-      {loading && (
-        <div className="text-center py-[48px]">
-          <div className="inline-block w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="mt-[12px] text-body-md text-on-surface-variant">
-            Memuat data...
-          </p>
-        </div>
-      )}
-
-      {/* Bento Grid Metrics */}
-      {data && (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-[20px] stagger-children">
-            <MetricCard
-              title="Total Resep Hari Ini"
-              value={data.totalBatchToday}
-              unit="resep"
-              trend={data.batchTrend}
-              icon="restaurant"
-              variant="primary"
-            />
-            <MetricCard
-              title="Total Bahan Baku Terpakai"
-              value={data.totalBahanToday}
-              unit="kg"
-              trend={data.bahanTrend}
-              icon="kitchen"
-              variant="secondary"
-            />
-          </div>
-
-          {/* Trend Chart */}
-          <div className="animate-slide-up">
-            <TrendChart data={data.weeklyTrend} />
-          </div>
-        </>
-      )}
-
-      {/* Empty State */}
-      {!loading && data && data.totalBatchToday === 0 && (
-        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-[32px] shadow-soft-press text-center">
-          <span
-            className="material-symbols-outlined text-[48px] text-outline mb-[12px]"
-            style={{ fontVariationSettings: "'FILL' 0" }}
-          >
-            restaurant
-          </span>
-          <p className="text-body-lg font-[500] text-on-surface mb-[4px]">
-            Belum ada produksi hari ini
-          </p>
-          <p className="text-body-md text-on-surface-variant mb-[20px]">
-            Mulai catat resep produksi pertama Anda.
-          </p>
-          <Link
-            href="/input"
-            className="
-              inline-flex items-center gap-[8px]
-              bg-primary text-on-primary
-              font-[700] text-label-bold
-              px-[24px] py-[12px] rounded-lg
-              active-press shadow-soft-press
-            "
-          >
-            <span className="material-symbols-outlined">add</span>
-            Mulai Produksi
+          <Link href="/input" className="btn btn-dark mt-8 w-full sm:w-auto">
+            <span aria-hidden="true" className="material-symbols-outlined">
+              add
+            </span>
+            Input Produksi
           </Link>
         </div>
+      </section>
+
+      {loading && (
+        <section className="row">
+          <p role="status" className="frame px-4 py-12 text-center label-mono">
+            Memuat data...
+          </p>
+        </section>
       )}
-    </div>
+
+      {!loading && !data && (
+        <section className="row">
+          <p role="alert" className="frame px-4 py-12 text-center text-danger">
+            Gagal memuat data dashboard. Muat ulang halaman untuk mencoba lagi.
+          </p>
+        </section>
+      )}
+
+      {data && (
+        <>
+          <section className="row" aria-label="Angka hari ini">
+            <div className="frame grid grid-cols-1 sm:grid-cols-2 gap-px bg-line">
+              <MetricCard
+                title="Total resep hari ini"
+                value={data.totalBatchToday}
+                unit="resep"
+                trend={data.batchTrend}
+              />
+              <MetricCard
+                title="Bahan baku terpakai"
+                value={data.totalBahanToday}
+                unit="kg"
+                note={SPOON_ESTIMATE_NOTE}
+              />
+            </div>
+          </section>
+
+          {data.totalBatchToday === 0 && (
+            <section className="row">
+              <div className="frame px-4 py-10 text-center">
+                <p className="text-[18px] font-semibold">Belum ada produksi hari ini</p>
+                <p className="mt-1 text-ink-soft">
+                  Catat resep pertama yang selesai diolah hari ini.
+                </p>
+                <Link href="/input" className="btn btn-line mt-6">
+                  Mulai Mencatat
+                </Link>
+              </div>
+            </section>
+          )}
+
+          <section className="row">
+            <div className="frame">
+              <h2 className="bg-white px-4 md:px-6 pt-5 text-[18px] font-semibold">
+                Tren penggunaan bahan, 7 hari
+              </h2>
+              <TrendChart data={data.weeklyTrend} />
+            </div>
+          </section>
+        </>
+      )}
+    </>
   );
 }
