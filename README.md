@@ -10,11 +10,18 @@ Dibangun dengan Next.js 16 (App Router), Prisma 7, dan MySQL/MariaDB.
 |---|---|
 | Dashboard (`/`) | Total resep dan bahan hari ini, tren bahan 7 hari |
 | Input (`/input`) | Penghitung per resep (urut dari yang paling sering dibuat), simpan sesi, tombol Batalkan 10 detik |
-| Riwayat (`/riwayat`) | Sesi tersimpan per tanggal, hapus sesi yang salah input |
+| Riwayat (`/riwayat`) | Sesi tersimpan per tanggal; ubah jumlah resep atau hapus sesi yang salah input |
 | Resep (`/resep`) | Kelola resep, komposisi bahan, dan kategori |
-| Laporan (`/laporan`) | Ringkasan per hari/minggu/bulan, periode sebelumnya, unduh CSV |
+| Laporan (`/laporan`) | Ringkasan per hari, minggu (Senin–Minggu), atau bulan; geser periode atau pilih tanggal lewat kalender; unduh PDF dan CSV |
 
 Hitungan di halaman Input disimpan sebagai draf di perangkat, jadi tidak hilang saat halaman di-refresh.
+
+Unduhan laporan:
+
+- **PDF**: tombol Unduh PDF membuka dialog cetak; pilih "Simpan sebagai PDF". Isinya tabel A4 dengan logo warung.
+- **CSV**: kolom dipisah `;` dan desimal memakai koma (`11,2`), sesuai Excel berbahasa/berwilayah Indonesia, jadi langsung terbagi per kolom saat dibuka.
+
+Logo warung ada di `public/logo.jpg` dan dipakai di header, laporan PDF, serta ikon aplikasi (tab browser dan layar utama ponsel). Ganti file itu untuk mengganti logo di semua tempat. Font ikon disajikan dari aplikasi sendiri, jadi ikon tetap tampil walaupun internet putus.
 
 ## Menjalankan di komputer sendiri
 
@@ -33,7 +40,7 @@ npm run dev                 # http://localhost:3000
 | Variabel | Keterangan |
 |---|---|
 | `DATABASE_URL` | Koneksi MySQL/MariaDB, mis. `mysql://user:pass@localhost:3306/produksi_dapur` |
-| `ADMIN_PIN` | PIN pemilik. Bila diisi, menambah/mengubah/menghapus resep dan kategori serta menghapus sesi lewat Riwayat butuh PIN (berlaku 12 jam per perangkat). Kosong = tanpa PIN. |
+| `ADMIN_PIN` | PIN pemilik. Bila diisi, menambah/mengubah/menghapus resep dan kategori serta mengubah atau menghapus sesi lewat Riwayat butuh PIN. Sesi yang baru disimpan masih bisa dikoreksi tanpa PIN selama 1 menit. PIN berlaku 12 jam per perangkat. Kosong = tanpa PIN. |
 
 ## Perintah
 
@@ -70,7 +77,7 @@ Zona waktu dikunci ke WIB di `next.config.ts`, jadi batas "hari ini" tetap benar
 
 1. Buat branch baru dari `master` untuk satu perubahan: `git switch -c fitur/nama-singkat`.
 2. Commit kecil dan sering; jalankan `npm run check` sebelum push.
-3. Push dan buat pull request ke `master`. CI (`.github/workflows/ci.yml`) menjalankan lint, typecheck, tes, dan build.
+3. Push dan buat pull request ke `master`. CI (`.github/workflows/ci.yml`) menjalankan lint, cek format, typecheck, tes, dan build.
 4. Merge setelah CI hijau, lalu hapus branch-nya. Jangan menumpuk branch di atas branch lain yang belum di-merge.
 5. Bila perubahan menyentuh skema: `npm run db:migrate` membuat migrasi, commit folder `prisma/migrations/` bersama kodenya, dan di server cukup `npm run db:migrate:deploy`.
 
@@ -81,6 +88,7 @@ app/                 halaman dan route API (app/api/*)
 components/          komponen UI; recipe/useRecipeList.ts dipakai Input dan Resep
 lib/                 logika bersama + tesnya (units, draft, reportPeriod, adminAuth, recipeInput)
 prisma/              skema, migrasi, seed
+public/              logo warung (logo.jpg)
 scripts/             backup database dan jadwalnya
 DESIGN.md            arah desain dan alasan tiap keputusan visual
 ```
