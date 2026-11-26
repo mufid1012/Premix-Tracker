@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { entryKg, round1 } from "@/lib/units";
+import { summarizeSession } from "@/lib/sessionSummary";
 
 const PAGE_SIZE = 20;
 
@@ -83,20 +84,18 @@ export async function GET(request: NextRequest) {
     const before = Number(request.nextUrl.searchParams.get("before"));
 
     const sessions = await prisma.productionSession.findMany({
-      where: Number.isInteger(before) && before > 0 ? { id: { lt: before } } : undefined,
+      where: {
+        ...(Number.isInteger(before) && before > 0 ? { id: { lt: before } } : {}),
+        // Sesi tanpa resep (sisa aturan lama yang ikut menghapus entry saat resep dihapus) tidak ditampilkan
+        entries: { some: {} },
+      },
       orderBy: { id: "desc" },
       take: PAGE_SIZE,
       include: { entries: { include: { ingredients: true } } },
     });
 
     return NextResponse.json({
-      sessions: sessions.map((s) => ({
-        id: s.id,
-        createdAt: s.createdAt,
-        totalBatch: s.entries.reduce((sum, e) => sum + e.batchCount, 0),
-        totalBahanKg: round1(s.entries.reduce((sum, e) => sum + entryKg(e), 0)),
-        entries: s.entries.map((e) => ({ recipeName: e.recipeName, batchCount: e.batchCount })),
-      })),
+      sessions: sessions.map(summarizeSession),
       nextBefore: sessions.length === PAGE_SIZE ? sessions[sessions.length - 1].id : null,
     });
   } catch (error) {

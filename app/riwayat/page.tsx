@@ -3,14 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useAdminFetch } from "@/components/PinProvider";
-
-interface Session {
-  id: number;
-  createdAt: string;
-  totalBatch: number;
-  totalBahanKg: number;
-  entries: Array<{ recipeName: string; batchCount: number }>;
-}
+import SessionItem, { type Session } from "@/components/production/SessionItem";
 
 interface Page {
   sessions: Session[];
@@ -24,9 +17,6 @@ const dayLabel = (iso: string) =>
     month: "long",
     year: "numeric",
   });
-
-const timeLabel = (iso: string) =>
-  new Date(iso).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
 
 /** Kelompokkan sesi per tanggal, urutan tetap terbaru dulu */
 const groupByDay = (sessions: Session[]) => {
@@ -47,7 +37,6 @@ export default function RiwayatPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [loadError, setLoadError] = useState(false);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
   const fetchPage = useCallback(async (before: number | null) => {
@@ -80,25 +69,6 @@ export default function RiwayatPage() {
     }
   };
 
-  const handleDelete = async (s: Session) => {
-    const ok = confirm(
-      `Hapus sesi ${timeLabel(s.createdAt)} (${s.totalBatch} resep)? Angka di dashboard dan laporan akan berkurang. Tindakan ini tidak bisa dibatalkan.`
-    );
-    if (!ok) return;
-    setDeletingId(s.id);
-    setMessage(null);
-    try {
-      const res = await adminFetch(`/api/productions/${s.id}`, { method: "DELETE" });
-      if (res.status === 401) return; // dialog PIN dibatalkan
-      if (!res.ok) throw new Error();
-      setSessions((prev) => prev.filter((x) => x.id !== s.id));
-      setMessage({ ok: true, text: `Sesi ${timeLabel(s.createdAt)} dihapus.` });
-    } catch {
-      setMessage({ ok: false, text: "Gagal menghapus sesi. Coba lagi." });
-    } finally {
-      setDeletingId(null);
-    }
-  };
 
   return (
     <>
@@ -106,7 +76,7 @@ export default function RiwayatPage() {
         <div className="frame px-4 py-8 md:py-12 text-center">
           <h1 className="h-display">Riwayat Sesi</h1>
           <p className="mt-3 text-ink-soft">
-            Sesi produksi yang sudah disimpan. Hapus sesi yang salah input, lalu catat ulang.
+            Sesi produksi yang sudah disimpan. Ubah jumlah yang salah input, atau hapus sesinya.
           </p>
           <Link href="/input" className="btn btn-dark mt-6">
             <span aria-hidden="true" className="material-symbols-outlined">
@@ -161,33 +131,16 @@ export default function RiwayatPage() {
             <h2 className="band">{group.day}</h2>
             <ul className="ruled-grid">
               {group.sessions.map((s) => (
-                <li key={s.id} className="bg-white p-4 md:px-6 flex flex-col sm:flex-row gap-4">
-                  <div className="sm:w-40 shrink-0">
-                    <p className="font-display text-[28px] leading-none">{timeLabel(s.createdAt)}</p>
-                    <p className="label-mono mt-2">
-                      {s.totalBatch} resep, {s.totalBahanKg} kg
-                    </p>
-                  </div>
-                  <ul className="flex-1 border border-line divide-y divide-line self-start w-full">
-                    {s.entries.map((e, i) => (
-                      <li key={i} className="flex justify-between gap-4 px-3 py-2">
-                        <span>{e.recipeName}</span>
-                        <span className="font-mono text-[14px] shrink-0">{e.batchCount} resep</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(s)}
-                    disabled={deletingId === s.id}
-                    className="btn btn-danger shrink-0 self-start"
-                  >
-                    <span aria-hidden="true" className="material-symbols-outlined text-[20px]">
-                      delete
-                    </span>
-                    {deletingId === s.id ? "Menghapus..." : "Hapus Sesi"}
-                  </button>
-                </li>
+                <SessionItem
+                  key={s.id}
+                  session={s}
+                  adminFetch={adminFetch}
+                  onUpdated={(updated) =>
+                    setSessions((prev) => prev.map((x) => (x.id === updated.id ? updated : x)))
+                  }
+                  onDeleted={(id) => setSessions((prev) => prev.filter((x) => x.id !== id))}
+                  onMessage={setMessage}
+                />
               ))}
             </ul>
           </div>
