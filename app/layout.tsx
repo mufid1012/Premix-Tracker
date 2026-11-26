@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Tektur } from "next/font/google";
+// Font ikon disajikan dari server aplikasi sendiri (paket npm), jadi tetap tampil
+// walaupun internet warung putus. Font teks juga sudah lokal lewat next/font.
+import "material-symbols/outlined.css";
 import "./globals.css";
 import TopAppBar from "@/components/layout/TopAppBar";
 import BottomNavBar from "@/components/layout/BottomNavBar";
@@ -44,15 +47,6 @@ export default function RootLayout({
       lang="id"
       className={`${inter.variable} ${tektur.variable} ${jetbrains.variable} h-full`}
     >
-      <head>
-        {/* Material Symbols tidak tersedia di next/font. Di App Router, root layout memang
-            tempat yang benar; aturan ini ditujukan untuk pages/_document. */}
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-          rel="stylesheet"
-        />
-      </head>
       <body className="min-h-full flex flex-col">
         <TopAppBar />
 

@@ -18,6 +18,8 @@ Hitungan di halaman Input disimpan sebagai draf di perangkat, jadi tidak hilang 
 
 ## Menjalankan di komputer sendiri
 
+Database lokal: MariaDB 10.11 lewat [DBngin](https://dbngin.com) di port 3306, user `root` tanpa password (sebelumnya XAMPP, yang tidak bisa dibuka lagi sejak macOS 27). Nyalakan "Auto start" di DBngin supaya database ikut menyala setelah Mac di-restart.
+
 ```bash
 npm install
 cp .env.example .env        # isi DATABASE_URL (dan ADMIN_PIN bila perlu)

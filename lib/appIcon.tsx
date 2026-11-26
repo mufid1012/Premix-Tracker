@@ -1,18 +1,30 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
-// Huruf "PD" bergaya persegi (selaras dengan Tektur), digambar sebagai path di
-// kanvas 512 supaya tidak perlu memuat file font. Sudut kanan D dipotong miring.
-const P = "M116 150H236V266H160V362H116Z M160 194V222H192V194Z";
-const D = "M276 150H372L396 174V338L372 362H276Z M320 194V318H352V194Z";
+/**
+ * PNG ikon aplikasi dari logo warung (public/logo.jpg) di atas latar putih.
+ * Logo diperkecil ke 88% supaya teksnya tetap utuh saat ikon "maskable" dipotong bulat.
+ */
+export async function renderAppIcon(size: number) {
+  const logo = await readFile(join(process.cwd(), "public/logo.jpg"));
+  const src = `data:image/jpeg;base64,${logo.toString("base64")}`;
+  const logoSize = Math.round(size * 0.88);
 
-/** PNG ikon aplikasi. Isi ada di 60% tengah, aman untuk ikon "maskable". */
-export function renderAppIcon(size: number) {
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", background: "#242628" }}>
-        <svg width={size} height={size} viewBox="0 0 512 512">
-          <path fill="#ffffff" fillRule="evenodd" d={`${P} ${D}`} />
-        </svg>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#ffffff",
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- ImageResponse hanya mengenal img biasa */}
+        <img src={src} width={logoSize} height={logoSize} alt="" />
       </div>
     ),
     { width: size, height: size }

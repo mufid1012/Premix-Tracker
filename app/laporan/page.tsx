@@ -5,7 +5,9 @@ import PeriodSelector from "@/components/report/PeriodSelector";
 import MetricCard from "@/components/dashboard/MetricCard";
 import TopProgressBar from "@/components/report/TopProgressBar";
 import SimpleBarChart from "@/components/report/SimpleBarChart";
+import PrintReport, { fmtNumber, type ReportSection } from "@/components/report/PrintReport";
 import { SPOON_ESTIMATE_NOTE } from "@/lib/units";
+import { offsetForDate, rangeEndValue } from "@/lib/reportPeriod";
 
 type Period = "harian" | "mingguan" | "bulanan";
 
@@ -50,44 +52,73 @@ export default function LaporanPage() {
 
   const periodNoun = { harian: "hari", mingguan: "minggu", bulanan: "bulan" }[period];
 
-  const handleDownload = () => {
+  const periodLabel = { harian: "Harian", mingguan: "Mingguan", bulanan: "Bulanan" }[period];
+
+  const sections: ReportSection[] = data
+    ? [
+        {
+          title: "Resep terbanyak",
+          nameHeader: "Nama resep",
+          unit: "resep",
+          rows: data.topRecipes,
+        },
+        {
+          title: "Bahan terpakai",
+          nameHeader: "Nama bahan",
+          unit: "kg",
+          rows: data.topIngredients,
+        },
+        {
+          title: "Tren produksi",
+          nameHeader: "Periode",
+          unit: "resep",
+          rows: data.trendData.map((t) => ({ name: t.label, value: t.value })),
+        },
+      ]
+    : [];
+
+  const fileName = data
+    ? `laporan_produksi_${period}_${data.dateRange.replace(/[^0-9A-Za-z]+/g, "-")}`
+    : "";
+
+  // Excel berlocale Indonesia memakai ";" sebagai pemisah kolom dan "," sebagai desimal
+  const handleDownloadCsv = () => {
     if (!data) return;
+    const cell = (v: string | number) =>
+      typeof v === "number" ? fmtNumber(v) : `"${v.replace(/"/g, '""')}"`;
+    const row = (...cells: Array<string | number>) => cells.map(cell).join(";");
 
-    const lines = [];
-    lines.push(`Laporan Produksi - Periode: ${period.toUpperCase()} (${data.dateRange})`);
-    lines.push("");
+    const lines = [
+      row("Laporan Produksi"),
+      row("Periode", periodLabel),
+      row("Rentang", data.dateRange),
+      "",
+      row("Ringkasan", "Jumlah", "Satuan"),
+      row("Adonan selesai", data.summary.totalBatch, "resep"),
+      row("Bahan terpakai", data.summary.totalBahanKg, "kg"),
+    ];
+    for (const s of sections) {
+      lines.push("", row(s.title), row("No", s.nameHeader, `Jumlah (${s.unit})`));
+      s.rows.forEach((r, i) => lines.push(row(i + 1, r.name, r.value)));
+    }
+    lines.push("", row(SPOON_ESTIMATE_NOTE));
 
-    lines.push("RINGKASAN");
-    lines.push(`Total Adonan Selesai,${data.summary.totalBatch} Resep`);
-    lines.push(`Total Bahan Terpakai,${data.summary.totalBahanKg} Kg`);
-    lines.push("");
-
-    lines.push("TOP RESEP");
-    lines.push("Nama Resep,Jumlah (Resep)");
-    data.topRecipes.forEach((r) => lines.push(`"${r.name}",${r.value}`));
-    lines.push("");
-
-    lines.push("TOP BAHAN TERPAKAI");
-    lines.push("Nama Bahan,Jumlah (Kg)");
-    data.topIngredients.forEach((i) => lines.push(`"${i.name}",${i.value}`));
-    lines.push("");
-
-    lines.push("TREN PRODUKSI");
-    lines.push("Periode,Jumlah (Resep)");
-    data.trendData.forEach((t) => lines.push(`${t.label},${t.value}`));
-
-    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+    // BOM supaya Excel membaca huruf non-ASCII dengan benar
+    const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute(
-      "download",
-      `laporan_produksi_${period}_${data.dateRange.replace(/[^0-9A-Za-z]+/g, "-")}.csv`
-    );
-    document.body.appendChild(link);
+    link.href = url;
+    link.download = `${fileName}.csv`;
     link.click();
-    document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  // Judul dokumen jadi nama file bawaan saat "Simpan sebagai PDF"
+  const handleDownloadPdf = () => {
+    const prev = document.title;
+    document.title = fileName;
+    window.print();
+    document.title = prev;
   };
 
   return (
@@ -115,15 +146,31 @@ export default function LaporanPage() {
                 chevron_left
               </span>
             </button>
-            <p
-              aria-live="polite"
-              className="flex-1 flex flex-col items-center justify-center px-2 text-center"
-            >
-              <span className="font-semibold">{data?.dateRange ?? "..."}</span>
+            {/* Input tanggal transparan menutupi label: ketuk tanggal untuk membuka kalender HP */}
+            <label className="relative flex-1 flex flex-col items-center justify-center px-2 text-center cursor-pointer hover:bg-paper">
+              <span aria-live="polite" className="flex items-center gap-1 font-semibold">
+                {data?.dateRange ?? "..."}
+                <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
+                  calendar_month
+                </span>
+              </span>
               <span className="label-mono text-[11px]">
                 {offset === 0 ? `${periodNoun} ini` : `${offset} ${periodNoun} lalu`}
               </span>
-            </p>
+              <input
+                type="date"
+                aria-label="Pilih tanggal laporan"
+                value={data ? rangeEndValue(period, offset) : ""}
+                max={data ? rangeEndValue(period, 0) : undefined}
+                onClick={(e) => e.currentTarget.showPicker?.()}
+                onChange={(e) => {
+                  if (!e.target.value) return;
+                  const [y, m, d] = e.target.value.split("-").map(Number);
+                  setOffset(offsetForDate(period, new Date(y, m - 1, d)));
+                }}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </label>
             <button
               type="button"
               onClick={() => setOffset((o) => Math.max(o - 1, 0))}
@@ -174,15 +221,37 @@ export default function LaporanPage() {
           </section>
 
           <section className="row">
-            <div className="frame p-4">
-              <button type="button" onClick={handleDownload} className="btn btn-dark w-full min-h-14">
+            <div className="frame grid grid-cols-2 gap-3 p-4">
+              <button
+                type="button"
+                onClick={handleDownloadPdf}
+                className="btn btn-dark min-h-14 px-3 whitespace-nowrap"
+              >
                 <span aria-hidden="true" className="material-symbols-outlined">
-                  download
+                  picture_as_pdf
                 </span>
-                Unduh Laporan (CSV)
+                Unduh PDF
+              </button>
+              <button
+                type="button"
+                onClick={handleDownloadCsv}
+                className="btn btn-line min-h-14 px-3 whitespace-nowrap"
+              >
+                <span aria-hidden="true" className="material-symbols-outlined">
+                  table_view
+                </span>
+                Unduh CSV
               </button>
             </div>
           </section>
+
+          <PrintReport
+            periodLabel={periodLabel}
+            dateRange={data.dateRange}
+            totalBatch={data.summary.totalBatch}
+            totalBahanKg={data.summary.totalBahanKg}
+            sections={sections}
+          />
         </>
       ) : (
         <section className="row">

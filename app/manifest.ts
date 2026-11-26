@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Pencatatan produksi resep warung.",
     start_url: "/input",
     display: "standalone",
-    background_color: "#e2e4dd",
+    background_color: "#ffffff",
     theme_color: "#242628",
     icons: [
       { src: "/icon/192", sizes: "192x192", type: "image/png", purpose: "any" },
