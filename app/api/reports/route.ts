@@ -45,12 +45,15 @@ export async function GET(request: NextRequest) {
       if (entry.createdAt < range.start || entry.createdAt >= range.end) continue;
 
       totalBatch += entry.batchCount;
-      recipeMap.set(entry.recipeName, (recipeMap.get(entry.recipeName) || 0) + entry.batchCount);
+      const recipeName = entry.recipeName.trim();
+      recipeMap.set(recipeName, (recipeMap.get(recipeName) || 0) + entry.batchCount);
 
       for (const ing of entry.ingredients) {
         const usedKg = entry.batchCount * normalizeToKg(ing.quantity, ing.unit);
         totalBahanKg += usedKg;
-        ingredientMap.set(ing.ingredientName, (ingredientMap.get(ing.ingredientName) || 0) + usedKg);
+        // trim: "Moto " dan "Moto" dihitung satu bahan
+        const name = ing.ingredientName.trim();
+        ingredientMap.set(name, (ingredientMap.get(name) || 0) + usedKg);
       }
     }
 
