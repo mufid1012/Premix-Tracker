@@ -9,12 +9,23 @@ const KEEP_DAYS = 14;
 const DIR = join(import.meta.dirname, "..", "backups");
 const PREFIX = "produksi-dapur-";
 
-// launchd berjalan dengan PATH minimal, jadi cari mysqldump di lokasi umum juga
+// launchd berjalan dengan PATH minimal, jadi cari mysqldump di lokasi umum juga.
+// Urutan: MariaDB dari DBngin (dipakai sejak migrasi dari XAMPP), Homebrew, lalu XAMPP.
+const DBNGIN_MARIADB = "/Users/Shared/DBngin/mariadb";
+const dbnginDumps = existsSync(DBNGIN_MARIADB)
+  ? readdirSync(DBNGIN_MARIADB)
+      .sort()
+      .reverse()
+      .map((v) => join(DBNGIN_MARIADB, v, "bin", "mysqldump"))
+  : [];
 const MYSQLDUMP =
   process.env.MYSQLDUMP_PATH ||
-  ["/Applications/XAMPP/xamppfiles/bin/mysqldump", "/opt/homebrew/bin/mysqldump", "/usr/local/bin/mysqldump"].find(
-    existsSync
-  ) ||
+  [
+    ...dbnginDumps,
+    "/opt/homebrew/bin/mysqldump",
+    "/usr/local/bin/mysqldump",
+    "/Applications/XAMPP/xamppfiles/bin/mysqldump",
+  ].find(existsSync) ||
   "mysqldump";
 
 const url = new URL(process.env.DATABASE_URL);
