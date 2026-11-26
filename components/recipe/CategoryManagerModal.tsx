@@ -17,13 +17,36 @@ interface CategoryManagerModalProps {
 }
 
 const ICONS = [
-  "category", "restaurant_menu", "fastfood", "local_pizza",
-  "local_cafe", "set_meal", "soup_kitchen", "bakery_dining",
-  "icecream", "liquor", "kitchen", "blender", "egg",
-  "water_drop", "grass", "eco", "scale", "inventory_2",
-  "lunch_dining", "ramen_dining", "takeout_dining", "local_dining",
-  "brunch_dining", "rice_bowl", "cookie", "cake", "bento", "kebab_dining",
-  "coffee", "grocery",
+  "category",
+  "restaurant_menu",
+  "fastfood",
+  "local_pizza",
+  "local_cafe",
+  "set_meal",
+  "soup_kitchen",
+  "bakery_dining",
+  "icecream",
+  "liquor",
+  "kitchen",
+  "blender",
+  "egg",
+  "water_drop",
+  "grass",
+  "eco",
+  "scale",
+  "inventory_2",
+  "lunch_dining",
+  "ramen_dining",
+  "takeout_dining",
+  "local_dining",
+  "brunch_dining",
+  "rice_bowl",
+  "cookie",
+  "cake",
+  "bento",
+  "kebab_dining",
+  "coffee",
+  "grocery",
 ];
 
 const errorMessage = (err: unknown, fallback: string) =>
@@ -72,7 +95,10 @@ export default function CategoryManagerModal({
   return (
     <Modal title="Kelola Kategori" onClose={onClose}>
       {error && (
-        <p role="alert" className="p-3 bg-danger-soft text-danger border border-danger font-semibold">
+        <p
+          role="alert"
+          className="p-3 bg-danger-soft text-danger border border-danger font-semibold"
+        >
           {error}
         </p>
       )}

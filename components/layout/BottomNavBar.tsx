@@ -27,9 +27,7 @@ export default function BottomNavBar() {
             href={item.href}
             aria-current={isActive ? "page" : undefined}
             className={`h-16 flex flex-col items-center justify-center gap-0.5 border-l border-line first:border-l-0 font-mono text-[11px] uppercase transition-colors ${
-              isActive
-                ? "bg-band text-white"
-                : "text-ink hover:bg-paper active:bg-panel"
+              isActive ? "bg-band text-white" : "text-ink hover:bg-paper active:bg-panel"
             }`}
           >
             <span

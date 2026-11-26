@@ -28,8 +28,7 @@ const jetbrains = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Produksi Dapur | Tracking Premix",
-  description:
-    "Aplikasi pencatatan, pelacakan, dan analisis produksi adonan warung.",
+  description: "Aplikasi pencatatan, pelacakan, dan analisis produksi adonan warung.",
   appleWebApp: { capable: true, title: "Produksi", statusBarStyle: "black" },
 };
 
@@ -43,10 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="id"
-      className={`${inter.variable} ${tektur.variable} ${jetbrains.variable} h-full`}
-    >
+    <html lang="id" className={`${inter.variable} ${tektur.variable} ${jetbrains.variable} h-full`}>
       <body className="min-h-full flex flex-col">
         <TopAppBar />
 

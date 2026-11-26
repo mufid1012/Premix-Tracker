@@ -56,9 +56,7 @@ export default function Modal({ title, onClose, children, footer }: ModalProps) 
 
         <div className="overflow-y-auto p-5 space-y-5">{children}</div>
 
-        {footer && (
-          <div className="border-t border-line bg-white p-4 flex gap-3">{footer}</div>
-        )}
+        {footer && <div className="border-t border-line bg-white p-4 flex gap-3">{footer}</div>}
       </div>
     </dialog>
   );

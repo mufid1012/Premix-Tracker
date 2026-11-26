@@ -18,7 +18,13 @@ test("PIN dan token", () => {
   const { value } = issueToken(now);
   assert.equal(verifyToken(value, now), true);
   assert.equal(verifyToken(value, now + 13 * 3600 * 1000), false); // kedaluwarsa
-  assert.equal(verifyToken(value.replace(/.$/, (c) => (c === "0" ? "1" : "0")), now), false); // diubah
+  assert.equal(
+    verifyToken(
+      value.replace(/.$/, (c) => (c === "0" ? "1" : "0")),
+      now
+    ),
+    false
+  ); // diubah
   assert.equal(verifyToken(undefined, now), false);
 
   process.env.ADMIN_PIN = "9999"; // ganti PIN membatalkan cookie lama

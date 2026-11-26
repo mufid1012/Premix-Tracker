@@ -41,8 +41,9 @@ npm run dev                 # http://localhost:3000
 |---|---|
 | `npm run dev` | Server pengembangan |
 | `npm run build` / `npm start` | Build dan jalankan versi produksi |
-| `npm run check` | Semua pengecekan sekaligus: lint, typecheck, tes, build. Jalankan sebelum commit. |
+| `npm run check` | Semua pengecekan sekaligus: lint, format, typecheck, tes, build. Jalankan sebelum commit. |
 | `npm run lint` / `npm run typecheck` | ESLint / TypeScript |
+| `npm run format` | Rapikan format kode dengan Prettier |
 | `npm test` | Tes unit (konversi satuan, draf, periode laporan, PIN, validasi resep) |
 | `npm run db:migrate:deploy` | Terapkan migrasi ke database |
 | `npm run db:backup` | Backup database ke `backups/` (14 hari terakhir disimpan) |

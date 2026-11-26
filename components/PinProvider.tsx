@@ -16,7 +16,10 @@ export default function PinProvider({ children }: { children: React.ReactNode })
   const adminFetch = useCallback<AdminFetch>(async (url, init) => {
     const res = await fetch(url, init);
     if (res.status !== 401) return res;
-    const body = await res.clone().json().catch(() => null);
+    const body = await res
+      .clone()
+      .json()
+      .catch(() => null);
     if (!body?.needPin) return res;
     const unlocked = await new Promise<boolean>((resolve) => setResolvePin(() => resolve));
     return unlocked ? fetch(url, init) : res;
@@ -84,7 +87,10 @@ function PinDialog({ onDone }: { onDone: (ok: boolean) => void }) {
           />
         </div>
         {error && (
-          <p role="alert" className="p-3 bg-danger-soft text-danger border border-danger font-semibold">
+          <p
+            role="alert"
+            className="p-3 bg-danger-soft text-danger border border-danger font-semibold"
+          >
             {error}
           </p>
         )}

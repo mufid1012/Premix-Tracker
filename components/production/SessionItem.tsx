@@ -35,8 +35,7 @@ export default function SessionItem({
   const [draft, setDraft] = useState<Record<number, number> | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const startEdit = () =>
-    setDraft(Object.fromEntries(s.entries.map((e) => [e.id, e.batchCount])));
+  const startEdit = () => setDraft(Object.fromEntries(s.entries.map((e) => [e.id, e.batchCount])));
 
   const change = (id: number, delta: number) =>
     setDraft((d) => (d ? { ...d, [id]: Math.max(0, (d[id] ?? 0) + delta) } : d));
@@ -173,7 +172,12 @@ export default function SessionItem({
               </span>
               Ubah Jumlah
             </button>
-            <button type="button" onClick={remove} disabled={busy} className="btn btn-danger flex-1">
+            <button
+              type="button"
+              onClick={remove}
+              disabled={busy}
+              className="btn btn-danger flex-1"
+            >
               <span aria-hidden="true" className="material-symbols-outlined text-[20px]">
                 delete
               </span>

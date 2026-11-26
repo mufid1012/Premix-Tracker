@@ -19,14 +19,24 @@ type Toast = {
 // false saat render server dan hidrasi, true setelahnya. Bagian yang
 // bergantung pada draf di localStorage baru tampil setelah ini true.
 const noopSubscribe = () => () => {};
-const useIsClient = () => useSyncExternalStore(noopSubscribe, () => true, () => false);
+const useIsClient = () =>
+  useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false
+  );
 
 const formatDraftTime = (iso: string) => {
   const d = new Date(iso);
   const sameDay = d.toDateString() === new Date().toDateString();
   return sameDay
     ? `hari ini pukul ${d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}`
-    : d.toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+    : d.toLocaleString("id-ID", {
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
 };
 
 interface Recipe {
@@ -102,10 +112,14 @@ export default function InputPage() {
       if (!res.ok) throw new Error();
       setBatchCounts((prev) => {
         const merged = { ...prev };
-        for (const [id, n] of Object.entries(counts)) merged[Number(id)] = (merged[Number(id)] || 0) + n;
+        for (const [id, n] of Object.entries(counts))
+          merged[Number(id)] = (merged[Number(id)] || 0) + n;
         return merged;
       });
-      showToast({ ok: true, text: "Sesi dibatalkan. Hitungannya dikembalikan untuk diperbaiki." }, 5000);
+      showToast(
+        { ok: true, text: "Sesi dibatalkan. Hitungannya dikembalikan untuk diperbaiki." },
+        5000
+      );
     } catch {
       showToast({ ok: false, text: "Gagal membatalkan sesi. Hapus lewat Riwayat Sesi." }, 6000);
     } finally {
@@ -146,7 +160,10 @@ export default function InputPage() {
       );
       clearDraft();
     } catch {
-      showToast({ ok: false, text: "Gagal menyimpan sesi. Hitungan tetap tersimpan, coba lagi." }, 5000);
+      showToast(
+        { ok: false, text: "Gagal menyimpan sesi. Hitungan tetap tersimpan, coba lagi." },
+        5000
+      );
     } finally {
       setSubmitting(false);
     }
@@ -174,7 +191,10 @@ export default function InputPage() {
           <div className="frame px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3 bg-white">
             <p className="flex-1">
               <span className="font-semibold">Hitungan belum disimpan dipulihkan</span>
-              <span className="text-ink-soft"> (terakhir diubah {formatDraftTime(restoredAt)}).</span>
+              <span className="text-ink-soft">
+                {" "}
+                (terakhir diubah {formatDraftTime(restoredAt)}).
+              </span>
             </p>
             <button
               type="button"
@@ -258,9 +278,7 @@ export default function InputPage() {
             ) : (
               <>
                 <p className="text-[18px] font-semibold">Belum ada resep</p>
-                <p className="mt-1 text-ink-soft">
-                  Buat resep terlebih dahulu di halaman Resep.
-                </p>
+                <p className="mt-1 text-ink-soft">Buat resep terlebih dahulu di halaman Resep.</p>
               </>
             )}
           </div>

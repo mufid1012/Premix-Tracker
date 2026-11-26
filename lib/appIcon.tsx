@@ -12,21 +12,19 @@ export async function renderAppIcon(size: number) {
   const logoSize = Math.round(size * 0.88);
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#ffffff",
-        }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element -- ImageResponse hanya mengenal img biasa */}
-        <img src={src} width={logoSize} height={logoSize} alt="" />
-      </div>
-    ),
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#ffffff",
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- ImageResponse hanya mengenal img biasa */}
+      <img src={src} width={logoSize} height={logoSize} alt="" />
+    </div>,
     { width: size, height: size }
   );
 }

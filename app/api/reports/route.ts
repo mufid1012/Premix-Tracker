@@ -13,7 +13,9 @@ export async function GET(request: NextRequest) {
     const periodParam = searchParams.get("period") as Period;
     const period = PERIODS.includes(periodParam) ? periodParam : "harian";
     const offsetParam = Number(searchParams.get("offset") ?? 0);
-    const offset = Number.isInteger(offsetParam) ? Math.min(Math.max(offsetParam, 0), MAX_OFFSET) : 0;
+    const offset = Number.isInteger(offsetParam)
+      ? Math.min(Math.max(offsetParam, 0), MAX_OFFSET)
+      : 0;
 
     const range = periodRange(period, offset);
     const trendStart = range.buckets[0].start;

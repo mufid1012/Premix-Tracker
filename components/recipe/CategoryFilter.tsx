@@ -7,12 +7,11 @@ interface CategoryFilterProps {
 }
 
 /** Baris chip kategori. Dipakai di halaman Input dan Resep. */
-export default function CategoryFilter({
-  categories,
-  activeId,
-  onSelect,
-}: CategoryFilterProps) {
-  const options = [{ id: "all", name: "Semua" }, ...categories.map((c) => ({ id: String(c.id), name: c.name }))];
+export default function CategoryFilter({ categories, activeId, onSelect }: CategoryFilterProps) {
+  const options = [
+    { id: "all", name: "Semua" },
+    ...categories.map((c) => ({ id: String(c.id), name: c.name })),
+  ];
 
   return (
     <div

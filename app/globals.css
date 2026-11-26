@@ -30,231 +30,234 @@
    =================================================================== */
 
 @layer base {
-body {
-  background: var(--color-paper);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
-  min-height: 100dvh;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-a[href],
-button,
-summary,
-select,
-label[for],
-[role="button"] {
-  cursor: pointer;
-}
+  a[href],
+  button,
+  summary,
+  select,
+  label[for],
+  [role="button"] {
+    cursor: pointer;
+  }
 
-:disabled {
-  cursor: not-allowed;
-}
+  :disabled {
+    cursor: not-allowed;
+  }
 
-:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
 }
 
 @layer components {
-/* ===================================================================
+  /* ===================================================================
    Pola identitas: kolom berbingkai garis vertikal, baris dipisah garis
    horizontal selebar layar. Membuat tiap halaman terbaca seperti lembar
    log produksi yang bergaris.
    =================================================================== */
 
-.frame {
-  width: min(64rem, calc(100% - 32px));
-  margin-inline: auto;
-  border-inline: 1px solid var(--color-line-strong);
-  background: var(--color-panel);
-}
+  .frame {
+    width: min(64rem, calc(100% - 32px));
+    margin-inline: auto;
+    border-inline: 1px solid var(--color-line-strong);
+    background: var(--color-panel);
+  }
 
-.row {
-  border-bottom: 1px solid var(--color-line);
-}
+  .row {
+    border-bottom: 1px solid var(--color-line);
+  }
 
-/* Daftar/grid bergaris: tiap sel dipisah garis tipis, bukan kartu
+  /* Daftar/grid bergaris: tiap sel dipisah garis tipis, bukan kartu
    melayang. Margin -1px menimpa garis terakhir dengan garis .row. */
-.ruled-grid {
-  margin-bottom: -1px;
-}
-.ruled-grid > * {
-  border-bottom: 1px solid var(--color-line);
-}
-@media (min-width: 640px) and (max-width: 1023px) {
-  .ruled-grid-3 > *:nth-child(odd) {
-    border-right: 1px solid var(--color-line);
+  .ruled-grid {
+    margin-bottom: -1px;
   }
-}
-@media (min-width: 1024px) {
-  .ruled-grid-3 > *:not(:nth-child(3n)) {
-    border-right: 1px solid var(--color-line);
+  .ruled-grid > * {
+    border-bottom: 1px solid var(--color-line);
   }
-}
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .ruled-grid-3 > *:nth-child(odd) {
+      border-right: 1px solid var(--color-line);
+    }
+  }
+  @media (min-width: 1024px) {
+    .ruled-grid-3 > *:not(:nth-child(3n)) {
+      border-right: 1px solid var(--color-line);
+    }
+  }
 
-/* Pita gelap pembuka tiap bagian */
-.band {
-  background: var(--color-band);
-  color: #fff;
-  font-family: var(--font-mono);
-  font-size: 14px;
-  line-height: 20px;
-  text-transform: uppercase;
-  text-align: center;
-  padding: 14px 16px;
-}
+  /* Pita gelap pembuka tiap bagian */
+  .band {
+    background: var(--color-band);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 20px;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 14px 16px;
+  }
 
-/* Judul halaman */
-.h-display {
-  font-family: var(--font-display);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  font-size: 40px;
-}
-@media (min-width: 768px) {
+  /* Judul halaman */
   .h-display {
-    font-size: 64px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    font-size: 40px;
   }
-}
+  @media (min-width: 768px) {
+    .h-display {
+      font-size: 64px;
+    }
+  }
 
-/* Label kecil: metadata, nama kolom, navigasi */
-.label-mono {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 18px;
-  text-transform: uppercase;
-  color: var(--color-ink-soft);
-}
+  /* Label kecil: metadata, nama kolom, navigasi */
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 18px;
+    text-transform: uppercase;
+    color: var(--color-ink-soft);
+  }
 
-/* ===================================================================
+  /* ===================================================================
    Kontrol
    =================================================================== */
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 0 20px;
-  font-family: var(--font-mono);
-  font-size: 14px;
-  text-transform: uppercase;
-  /* Lebar 0 supaya utilitas border-l/border-t bisa memberi garis satu sisi */
-  border: 0 solid var(--color-line);
-  transition: background-color 150ms, color 150ms, border-color 150ms;
-}
-.btn:disabled {
-  opacity: 0.5;
-}
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 20px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    text-transform: uppercase;
+    /* Lebar 0 supaya utilitas border-l/border-t bisa memberi garis satu sisi */
+    border: 0 solid var(--color-line);
+    transition:
+      background-color 150ms,
+      color 150ms,
+      border-color 150ms;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+  }
 
-.btn-dark {
-  background: var(--color-band);
-  color: #fff;
-}
-.btn-dark:hover:not(:disabled) {
-  background: #000;
-}
-.btn-dark:active:not(:disabled) {
-  background: var(--color-ink-soft);
-}
+  .btn-dark {
+    background: var(--color-band);
+    color: #fff;
+  }
+  .btn-dark:hover:not(:disabled) {
+    background: #000;
+  }
+  .btn-dark:active:not(:disabled) {
+    background: var(--color-ink-soft);
+  }
 
-.btn-accent {
-  background: var(--color-accent);
-  color: #fff;
-}
-.btn-accent:hover:not(:disabled) {
-  background: #0052b3;
-}
-.btn-accent:active:not(:disabled) {
-  background: #003f8a;
-}
+  .btn-accent {
+    background: var(--color-accent);
+    color: #fff;
+  }
+  .btn-accent:hover:not(:disabled) {
+    background: #0052b3;
+  }
+  .btn-accent:active:not(:disabled) {
+    background: #003f8a;
+  }
 
-.btn-line {
-  background: #fff;
-  color: var(--color-ink);
-  border-width: 1px;
-  border-color: var(--color-line-strong);
-}
-.btn-line:hover:not(:disabled) {
-  background: var(--color-paper);
-}
-.btn-line:active:not(:disabled) {
-  border-color: var(--color-ink);
-}
+  .btn-line {
+    background: #fff;
+    color: var(--color-ink);
+    border-width: 1px;
+    border-color: var(--color-line-strong);
+  }
+  .btn-line:hover:not(:disabled) {
+    background: var(--color-paper);
+  }
+  .btn-line:active:not(:disabled) {
+    border-color: var(--color-ink);
+  }
 
-.btn-danger {
-  background: #fff;
-  color: var(--color-danger);
-  border-width: 1px;
-  border-color: var(--color-danger);
-}
-.btn-danger:hover:not(:disabled) {
-  background: var(--color-danger-soft);
-}
+  .btn-danger {
+    background: #fff;
+    color: var(--color-danger);
+    border-width: 1px;
+    border-color: var(--color-danger);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: var(--color-danger-soft);
+  }
 
-/* Tombol ikon persegi */
-.btn-icon {
-  padding: 0;
-  width: 48px;
-}
+  /* Tombol ikon persegi */
+  .btn-icon {
+    padding: 0;
+    width: 48px;
+  }
 
-/* Kolom isian. Pencarian memakai varian pil seperti acuan. */
-.field {
-  width: 100%;
-  min-height: 48px;
-  padding: 0 14px;
-  background: #fff;
-  border: 1px solid var(--color-line-strong);
-  font-size: 16px;
-  color: var(--color-ink);
-}
-.field::placeholder {
-  color: var(--color-ink-soft);
-}
-.field:hover {
-  border-color: var(--color-ink);
-}
-.field-pill {
-  border-radius: 9999px;
-  min-height: 56px;
-  padding-left: 48px;
-}
+  /* Kolom isian. Pencarian memakai varian pil seperti acuan. */
+  .field {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 14px;
+    background: #fff;
+    border: 1px solid var(--color-line-strong);
+    font-size: 16px;
+    color: var(--color-ink);
+  }
+  .field::placeholder {
+    color: var(--color-ink-soft);
+  }
+  .field:hover {
+    border-color: var(--color-ink);
+  }
+  .field-pill {
+    border-radius: 9999px;
+    min-height: 56px;
+    padding-left: 48px;
+  }
 
-/* Chip filter kategori */
-.chip {
-  flex-shrink: 0;
-  min-height: 44px;
-  padding: 0 16px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  text-transform: uppercase;
-  background: #fff;
-  border: 1px solid var(--color-line-strong);
-  color: var(--color-ink);
-}
-.chip:hover {
-  border-color: var(--color-ink);
-}
-.chip[aria-pressed="true"] {
-  background: var(--color-band);
-  border-color: var(--color-band);
-  color: #fff;
-}
+  /* Chip filter kategori */
+  .chip {
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 0 16px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    text-transform: uppercase;
+    background: #fff;
+    border: 1px solid var(--color-line-strong);
+    color: var(--color-ink);
+  }
+  .chip:hover {
+    border-color: var(--color-ink);
+  }
+  .chip[aria-pressed="true"] {
+    background: var(--color-band);
+    border-color: var(--color-band);
+    color: #fff;
+  }
 
-/* Sembunyikan scrollbar pada baris chip yang digulir horizontal */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+  /* Sembunyikan scrollbar pada baris chip yang digulir horizontal */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 /* ===================================================================

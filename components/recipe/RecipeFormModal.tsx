@@ -105,9 +105,7 @@ export default function RecipeFormModal({
           type="button"
           onClick={async () => {
             if (
-              confirm(
-                "Hapus resep ini? Riwayat produksi resep ini tetap tersimpan di laporan."
-              )
+              confirm("Hapus resep ini? Riwayat produksi resep ini tetap tersimpan di laporan.")
             ) {
               setIsDeleting(true);
               await onDelete(initialData.id);
@@ -245,7 +243,11 @@ export default function RecipeFormModal({
           ))}
         </div>
 
-        <button type="button" onClick={addIngredient} className="btn btn-line w-full mt-3 border-dashed">
+        <button
+          type="button"
+          onClick={addIngredient}
+          className="btn btn-line w-full mt-3 border-dashed"
+        >
           <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
             add
           </span>

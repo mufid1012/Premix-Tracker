@@ -39,9 +39,12 @@ const file = join(DIR, `${PREFIX}${stamp}.sql`);
 const sql = execFileSync(
   MYSQLDUMP,
   [
-    "-h", url.hostname === "localhost" ? "127.0.0.1" : url.hostname,
-    "-P", url.port || "3306",
-    "-u", decodeURIComponent(url.username),
+    "-h",
+    url.hostname === "localhost" ? "127.0.0.1" : url.hostname,
+    "-P",
+    url.port || "3306",
+    "-u",
+    decodeURIComponent(url.username),
     "--single-transaction",
     "--routines",
     url.pathname.slice(1),

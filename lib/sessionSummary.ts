@@ -18,6 +18,10 @@ export function summarizeSession(s: SessionWithEntries) {
     createdAt: s.createdAt,
     totalBatch: s.entries.reduce((sum, e) => sum + e.batchCount, 0),
     totalBahanKg: round1(s.entries.reduce((sum, e) => sum + entryKg(e), 0)),
-    entries: s.entries.map((e) => ({ id: e.id, recipeName: e.recipeName, batchCount: e.batchCount })),
+    entries: s.entries.map((e) => ({
+      id: e.id,
+      recipeName: e.recipeName,
+      batchCount: e.batchCount,
+    })),
   };
 }

@@ -49,8 +49,7 @@ async function main() {
     data: {
       name: "Bumbu Merah Dasar",
       categoryId: bumbuDasar.id,
-      description:
-        "Digunakan untuk dasar balado, sambal goreng, dan bumbu rendang tahap awal.",
+      description: "Digunakan untuk dasar balado, sambal goreng, dan bumbu rendang tahap awal.",
       standardBatchKg: 5,
       unit: "Kg",
       ingredients: {
@@ -95,8 +94,7 @@ async function main() {
     data: {
       name: "Campuran Tepung Kriuk",
       categoryId: tepungBumbu.id,
-      description:
-        "Tepung pelapis standar untuk ayam goreng dan mendoan agar tahan lama.",
+      description: "Tepung pelapis standar untuk ayam goreng dan mendoan agar tahan lama.",
       standardBatchKg: 10,
       unit: "Kg",
       ingredients: {

@@ -38,13 +38,7 @@ export default function PrintReport({
     <div className="print-report">
       <header className="flex items-center gap-4">
         {/* eslint-disable-next-line @next/next/no-img-element -- img biasa supaya pasti termuat saat dicetak */}
-        <img
-          src="/logo.jpg"
-          alt="Logo warung"
-          width={64}
-          height={64}
-          className="rounded-full"
-        />
+        <img src="/logo.jpg" alt="Logo warung" width={64} height={64} className="rounded-full" />
         <div>
           <h1 className="text-[20px] font-bold">Laporan Produksi</h1>
           <p className="mt-1">

@@ -69,7 +69,6 @@ export default function RiwayatPage() {
     }
   };
 
-
   return (
     <>
       <section className="row">
@@ -120,7 +119,9 @@ export default function RiwayatPage() {
         <section className="row">
           <div className="frame px-4 py-12 text-center">
             <p className="text-[18px] font-semibold">Belum ada sesi tersimpan</p>
-            <p className="mt-1 text-ink-soft">Sesi muncul di sini setelah disimpan di halaman Input.</p>
+            <p className="mt-1 text-ink-soft">
+              Sesi muncul di sini setelah disimpan di halaman Input.
+            </p>
           </div>
         </section>
       )}

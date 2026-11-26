@@ -119,9 +119,7 @@ export default function ResepPage() {
       <section className="row">
         <div className="frame px-4 py-8 md:py-12 text-center">
           <h1 className="h-display">Manajemen Resep</h1>
-          <p className="mt-3 text-ink-soft">
-            Proporsi standar bahan untuk 1 resep produksi.
-          </p>
+          <p className="mt-3 text-ink-soft">Proporsi standar bahan untuk 1 resep produksi.</p>
           <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
             <button type="button" onClick={() => setShowModal(true)} className="btn btn-dark">
               <span aria-hidden="true" className="material-symbols-outlined">

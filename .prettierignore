@@ -1,0 +1,6 @@
+app/generated
+backups
+package-lock.json
+prisma/migrations
+.claude
+*.md

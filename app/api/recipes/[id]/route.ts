@@ -25,7 +25,8 @@ export async function PUT(request: NextRequest, { params }: Params) {
       prisma.recipe.findUnique({ where: { id: recipeId }, select: { id: true } }),
       prisma.category.findUnique({ where: { id: input.categoryId }, select: { id: true } }),
     ]);
-    if (!recipeExists) return NextResponse.json({ error: "Resep tidak ditemukan" }, { status: 404 });
+    if (!recipeExists)
+      return NextResponse.json({ error: "Resep tidak ditemukan" }, { status: 404 });
     if (!categoryExists) {
       return NextResponse.json({ error: "Kategori tidak ditemukan" }, { status: 400 });
     }

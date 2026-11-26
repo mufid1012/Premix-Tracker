@@ -11,7 +11,9 @@ test("parseDraft", () => {
   });
   // nilai tidak valid dibuang, sisanya dipertahankan
   assert.deepEqual(
-    parseDraft(JSON.stringify({ counts: { 3: 0, 4: -1, 5: 1.5, x: 2, 6: "2", 8: 4 }, updatedAt: at })),
+    parseDraft(
+      JSON.stringify({ counts: { 3: 0, 4: -1, 5: 1.5, x: 2, 6: "2", 8: 4 }, updatedAt: at })
+    ),
     { counts: { 8: 4 }, updatedAt: at }
   );
   assert.equal(parseDraft(JSON.stringify({ counts: { 3: 0 }, updatedAt: at })), null);

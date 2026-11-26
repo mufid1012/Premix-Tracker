@@ -21,7 +21,8 @@ const safeEqual = (a: string, b: string) => {
   return x.length === y.length && timingSafeEqual(x, y);
 };
 
-export const checkPin = (input: unknown) => typeof input === "string" && safeEqual(input.trim(), pin());
+export const checkPin = (input: unknown) =>
+  typeof input === "string" && safeEqual(input.trim(), pin());
 
 /** Nilai cookie "<kedaluwarsa>.<tanda tangan>"; berganti PIN membatalkan semua cookie lama. */
 export function issueToken(now = Date.now()) {
@@ -33,7 +34,9 @@ export function verifyToken(value: string | undefined, now = Date.now()) {
   if (!value) return false;
   const [exp, sig] = value.split(".");
   const expires = Number(exp);
-  return Number.isInteger(expires) && expires * 1000 > now && !!sig && safeEqual(sig, sign(expires));
+  return (
+    Number.isInteger(expires) && expires * 1000 > now && !!sig && safeEqual(sig, sign(expires))
+  );
 }
 
 export const isAdmin = (request: NextRequest) =>
@@ -57,7 +60,7 @@ export function attemptGate(ip: string, now = Date.now()) {
   return {
     locked: !!a && a.lockedUntil > now,
     fail() {
-      const fails = (a && a.lockedUntil <= now && a.fails >= MAX_FAILS ? 0 : a?.fails ?? 0) + 1;
+      const fails = (a && a.lockedUntil <= now && a.fails >= MAX_FAILS ? 0 : (a?.fails ?? 0)) + 1;
       attempts.set(ip, { fails, lockedUntil: fails >= MAX_FAILS ? now + LOCK_MS : 0 });
     },
     reset() {
